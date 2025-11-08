@@ -1,3 +1,5 @@
+import PricingCards from "./PricingCards";
+
 const PlansSection = () => {
   return (
     <section className="py-20 px-4">
@@ -12,6 +14,7 @@ const PlansSection = () => {
             trading algorithms and 24/7 support.
           </p>
         </div>
+        <PricingCards />
       </div>
     </section>
   );
