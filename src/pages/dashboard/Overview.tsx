@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, TrendingUp, Wallet, History, CreditCard, ArrowDownToLine } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { BarChart3, TrendingUp, Wallet, History, CreditCard, ArrowDownToLine, CheckCircle2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import ProfitCalculator from "@/components/ProfitCalculator";
 
 const Overview = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
+  const [balance, setBalance] = useState(0);
   const [cryptoPrices, setCryptoPrices] = useState({
     btc: 0,
     eth: 0,
@@ -25,6 +29,7 @@ const Overview = () => {
           .eq("user_id", user.id)
           .maybeSingle();
         setProfile(data);
+        setBalance(data?.usd_balance || 0);
 
         // Fetch active trades
         const { data: tradesData } = await supabase
@@ -204,6 +209,120 @@ const Overview = () => {
           View History
         </Button>
       </div>
+
+      {/* Investment Plans */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold mb-2">Investment Plans</h2>
+          <p className="text-muted-foreground">Choose a plan that fits your investment goals (Minimum: $300)</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              name: "Starter Plan",
+              dailyRate: "1.093%",
+              minInvest: "$300",
+              maxInvest: "$5,000",
+              duration: "7 days",
+              features: ["Daily Returns", "24/7 Support", "Instant Withdrawal"],
+              color: "from-blue-500/20 to-blue-600/20",
+              border: "border-blue-500/30"
+            },
+            {
+              name: "Professional Plan",
+              dailyRate: "0.62%",
+              minInvest: "$5,001",
+              maxInvest: "$20,000",
+              duration: "14 days",
+              features: ["Higher Returns", "Priority Support", "Dedicated Manager", "Risk Protection"],
+              color: "from-purple-500/20 to-purple-600/20",
+              border: "border-purple-500/30",
+              popular: true
+            },
+            {
+              name: "Premium Plan",
+              dailyRate: "0.3%",
+              minInvest: "$20,001",
+              maxInvest: "$50,000",
+              duration: "30 days",
+              features: ["Premium Returns", "VIP Support", "Personal Advisor", "Advanced Analytics"],
+              color: "from-amber-500/20 to-amber-600/20",
+              border: "border-amber-500/30"
+            },
+            {
+              name: "VIP Plan",
+              dailyRate: "0.4%",
+              minInvest: "$50,001",
+              maxInvest: "Unlimited",
+              duration: "60 days",
+              features: ["Elite Returns", "Concierge Service", "Portfolio Diversification", "Tax Advisory"],
+              color: "from-emerald-500/20 to-emerald-600/20",
+              border: "border-emerald-500/30"
+            }
+          ].map((plan) => (
+            <Card key={plan.name} className={`relative overflow-hidden bg-gradient-to-br ${plan.color} ${plan.border} border-2`}>
+              {plan.popular && (
+                <div className="absolute top-4 right-4">
+                  <Badge className="bg-primary text-primary-foreground">
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    Popular
+                  </Badge>
+                </div>
+              )}
+              <CardContent className="p-6 space-y-6">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
+                  <div className="text-3xl font-bold text-primary mb-1">{plan.dailyRate}</div>
+                  <p className="text-sm text-muted-foreground">Daily Returns</p>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Min Investment:</span>
+                    <span className="font-semibold">{plan.minInvest}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Max Investment:</span>
+                    <span className="font-semibold">{plan.maxInvest}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-semibold">{plan.duration}</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  {plan.features.map((feature) => (
+                    <div key={feature} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button 
+                  className="w-full" 
+                  variant={plan.popular ? "default" : "outline"}
+                  onClick={() => {
+                    if (balance < 300) {
+                      toast.error("Insufficient balance. Minimum investment is $300");
+                      navigate("/dashboard/deposit");
+                    } else {
+                      toast.info("Investment feature coming soon!");
+                    }
+                  }}
+                >
+                  Invest Now
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Profit Calculator */}
+      <ProfitCalculator />
     </div>
   );
 };

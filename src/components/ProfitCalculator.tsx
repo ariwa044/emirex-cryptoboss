@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 
 const ProfitCalculator = () => {
-  const [investment, setInvestment] = useState(1000);
+  const [investment, setInvestment] = useState(300);
   const [selectedPlan, setSelectedPlan] = useState("professional");
   const [duration, setDuration] = useState(30);
 
@@ -74,12 +74,12 @@ const ProfitCalculator = () => {
                 <Slider
                   value={[investment]}
                   onValueChange={(value) => setInvestment(value[0])}
-                  min={100}
+                  min={300}
                   max={100000}
                   step={100}
                   className="mb-2"
                 />
-                <p className="text-sm text-muted-foreground">Minimum: $100</p>
+                <p className="text-sm text-muted-foreground">Minimum: $300</p>
               </div>
 
               {/* Trading Plan */}
