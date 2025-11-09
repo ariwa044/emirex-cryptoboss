@@ -1,39 +1,40 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Bell, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import type { User } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
-
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    // Check authentication
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         navigate("/auth");
-      } else {
-        setUser(session.user);
-        loadProfile(session.user.id);
+        return;
       }
-      setLoading(false);
-    });
+      setUser(session.user);
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      setProfile(profileData);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!session) {
         navigate("/auth");
       } else {
@@ -44,75 +45,55 @@ const Dashboard = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const loadProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (error) {
-      console.error("Error loading profile:", error);
-    } else {
-      setProfile(data);
-    }
-  };
-
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      navigate("/");
-    }
+    await supabase.auth.signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully.",
+    });
+    navigate("/");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 rounded-lg bg-gradient-primary mx-auto mb-4 animate-pulse"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  const getInitials = (email: string) => {
+    return email?.charAt(0).toUpperCase() || "U";
+  };
+
+  const getUsername = () => {
+    return profile?.username || user?.email?.split("@")[0] || "User";
+  };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full">
         <DashboardSidebar />
+        
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border flex items-center justify-between px-6 bg-[hsl(263,50%,15%)]">
-            <SidebarTrigger className="text-white" />
+          <header className="h-16 border-b border-border bg-background/80 backdrop-blur-lg flex items-center justify-between px-6">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                <Bell className="w-5 h-5" />
-              </Button>
-              <div className="flex items-center gap-3">
-                <Avatar className="w-10 h-10 bg-primary">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {user?.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium text-white">
-                    Welcome back, {user?.email?.split("@")[0]}
-                  </p>
-                  <p className="text-xs text-white/70">{profile?.role || "Crypto Trader"}</p>
-                </div>
+              <SidebarTrigger />
+              <div>
+                <h1 className="text-lg font-semibold">Welcome back, {getUsername()}</h1>
+                <p className="text-sm text-muted-foreground">{profile?.role || "Crypto Trader"}</p>
               </div>
-              <Button variant="ghost" onClick={handleSignOut} className="text-white hover:bg-white/10">
-                Sign Out
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon">
+                <Bell className="h-5 w-5" />
               </Button>
+              <Button variant="ghost" size="icon" onClick={handleSignOut}>
+                <LogOut className="h-5 w-5" />
+              </Button>
+              <Avatar>
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {getInitials(user?.email)}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
-            <Outlet context={{ user, profile }} />
+
+          <main className="flex-1 p-6 bg-gradient-to-br from-background via-background to-primary/5">
+            <Outlet />
           </main>
         </div>
       </div>

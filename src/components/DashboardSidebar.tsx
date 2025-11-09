@@ -1,6 +1,5 @@
-import { LayoutDashboard, TrendingUp, Wallet, ArrowDownToLine, History, User } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, History, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { Waves } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,51 +12,44 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
+const navigationItems = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
   { title: "Trade", url: "/dashboard/trade", icon: TrendingUp },
-  { title: "Deposit", url: "/dashboard/deposit", icon: Wallet },
-  { title: "Withdraw", url: "/dashboard/withdraw", icon: ArrowDownToLine },
+  { title: "Deposit", url: "/dashboard/deposit", icon: ArrowDownToLine },
+  { title: "Withdraw", url: "/dashboard/withdraw", icon: ArrowUpFromLine },
   { title: "History", url: "/dashboard/history", icon: History },
   { title: "Profile", url: "/dashboard/profile", icon: User },
 ];
 
 export function DashboardSidebar() {
-  const { state } = useSidebar();
-  const isCollapsed = state === "collapsed";
+  const { open } = useSidebar();
 
   return (
-    <Sidebar className="border-r border-border bg-[hsl(263,70%,20%)]">
-      <div className="p-6 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center shrink-0">
-            <Waves className="w-6 h-6 text-white" />
-          </div>
-          {!isCollapsed && (
-            <div>
-              <h1 className="text-lg font-bold text-white">PrimeWave Global</h1>
-              <p className="text-xs text-white/70">Crypto Trading Platform</p>
-            </div>
-          )}
-        </div>
-      </div>
-
+    <Sidebar className="border-r border-border bg-gradient-to-b from-primary/10 to-background">
       <SidebarContent>
+        <div className="p-6">
+          <h2 className="text-xl font-bold">
+            <span className="text-primary">PrimeWave</span>{" "}
+            <span className="text-foreground">Global</span>
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">Crypto Trading Platform</p>
+        </div>
+
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/50 px-6">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => (
+              {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild className="hover:bg-white/10">
+                  <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end
-                      className="text-white/80 hover:text-white px-6 py-3"
-                      activeClassName="bg-white/20 text-white font-medium"
+                      end={item.url === "/dashboard"}
+                      className="hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/20 text-primary font-medium"
                     >
-                      <item.icon className="w-5 h-5 shrink-0" />
-                      {!isCollapsed && <span className="ml-3">{item.title}</span>}
+                      <item.icon className="h-4 w-4" />
+                      {open && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
