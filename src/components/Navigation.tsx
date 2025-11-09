@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Waves } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 py-4">
@@ -35,10 +38,18 @@ const Navigation = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" className="hidden md:inline-flex">
+            <Button 
+              variant="ghost" 
+              className="hidden md:inline-flex"
+              onClick={() => navigate("/auth")}
+            >
               Sign In
             </Button>
-            <Button variant="gradient" className="shadow-lg">
+            <Button 
+              variant="gradient" 
+              className="shadow-lg"
+              onClick={() => navigate("/auth")}
+            >
               Get Started
             </Button>
           </div>
