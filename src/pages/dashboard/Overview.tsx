@@ -92,6 +92,66 @@ const Overview = () => {
   const totalPNL = calculateTotalPNL();
   const totalROI = calculateTotalROI();
 
+  const handleInvest = async (plan: any) => {
+    if (balance < 300) {
+      toast.error("Insufficient balance. Minimum investment is $300");
+      navigate("/dashboard/deposit");
+      return;
+    }
+
+    const minAmount = parseInt(plan.minInvest.replace(/[$,]/g, ''));
+    const maxAmount = plan.maxInvest === "Unlimited" ? Infinity : parseInt(plan.maxInvest.replace(/[$,]/g, ''));
+    
+    if (balance < minAmount) {
+      toast.error(`Insufficient balance. Minimum for ${plan.name} is ${plan.minInvest}`);
+      navigate("/dashboard/deposit");
+      return;
+    }
+
+    if (balance > maxAmount) {
+      toast.error(`Your balance exceeds the maximum for ${plan.name}. Please choose a higher tier plan.`);
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const dailyRate = parseFloat(plan.dailyRate.replace('%', '')) / 100;
+      const durationDays = parseInt(plan.duration.split(' ')[0]);
+      const maturityDate = new Date();
+      maturityDate.setDate(maturityDate.getDate() + durationDays);
+
+      // Create investment record
+      const { error: investError } = await supabase
+        .from('investments')
+        .insert({
+          user_id: user.id,
+          plan_name: plan.name,
+          amount: balance,
+          daily_rate: dailyRate,
+          duration_days: durationDays,
+          maturity_date: maturityDate.toISOString()
+        });
+
+      if (investError) throw investError;
+
+      // Deduct from balance
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ usd_balance: 0 })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      toast.success(`Successfully invested $${balance.toFixed(2)} in ${plan.name}!`);
+      setBalance(0);
+    } catch (error) {
+      console.error('Investment error:', error);
+      toast.error("Failed to process investment. Please try again.");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -304,14 +364,7 @@ const Overview = () => {
                 <Button 
                   className="w-full" 
                   variant={plan.popular ? "default" : "outline"}
-                  onClick={() => {
-                    if (balance < 300) {
-                      toast.error("Insufficient balance. Minimum investment is $300");
-                      navigate("/dashboard/deposit");
-                    } else {
-                      toast.info("Investment feature coming soon!");
-                    }
-                  }}
+                  onClick={() => handleInvest(plan)}
                 >
                   Invest Now
                 </Button>
