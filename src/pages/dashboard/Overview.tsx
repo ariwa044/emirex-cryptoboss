@@ -13,6 +13,7 @@ const Overview = () => {
     eth: 0,
     ltc: 0,
   });
+  const [activeTrades, setActiveTrades] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -24,6 +25,14 @@ const Overview = () => {
           .eq("user_id", user.id)
           .maybeSingle();
         setProfile(data);
+
+        // Fetch active trades
+        const { data: tradesData } = await supabase
+          .from("trades")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "open");
+        setActiveTrades(tradesData || []);
       }
     };
 
@@ -50,6 +59,33 @@ const Overview = () => {
     const interval = setInterval(fetchCryptoPrices, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Calculate total PNL from active trades
+  const calculateTotalPNL = () => {
+    if (activeTrades.length === 0) return 0;
+    
+    return activeTrades.reduce((total, trade) => {
+      const currentPrice = cryptoPrices[trade.cryptocurrency.toLowerCase() as keyof typeof cryptoPrices];
+      if (!currentPrice) return total;
+      
+      const priceDiff = currentPrice - trade.entry_price;
+      const multiplier = trade.position_type === "long" ? 1 : -1;
+      const pnl = (priceDiff * multiplier * trade.amount * trade.leverage) / trade.entry_price;
+      return total + pnl;
+    }, 0);
+  };
+
+  const calculateTotalROI = () => {
+    if (activeTrades.length === 0) return 0;
+    
+    const totalInvested = activeTrades.reduce((sum, trade) => sum + trade.amount, 0);
+    if (totalInvested === 0) return 0;
+    
+    return (calculateTotalPNL() / totalInvested) * 100;
+  };
+
+  const totalPNL = calculateTotalPNL();
+  const totalROI = calculateTotalROI();
 
   return (
     <div className="space-y-6">
@@ -98,7 +134,9 @@ const Overview = () => {
                     <span className="text-green-400">$</span>
                     <span className="text-foreground">Active Trades Profit</span>
                   </div>
-                  <span className="text-xl font-bold text-green-400">+$0.00</span>
+                  <span className={`text-xl font-bold ${totalPNL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {totalPNL >= 0 ? '+' : ''}${totalPNL.toFixed(2)}
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -110,7 +148,7 @@ const Overview = () => {
                     <BarChart3 className="h-4 w-4 text-blue-400" />
                     <span className="text-foreground">Active Trades</span>
                   </div>
-                  <span className="text-xl font-bold text-blue-400">0</span>
+                  <span className="text-xl font-bold text-blue-400">{activeTrades.length}</span>
                 </div>
               </CardContent>
             </Card>
@@ -122,7 +160,9 @@ const Overview = () => {
                     <Wallet className="h-4 w-4 text-purple-400" />
                     <span className="text-foreground">Active Trades ROI</span>
                   </div>
-                  <span className="text-xl font-bold text-purple-400">0.0%</span>
+                  <span className={`text-xl font-bold ${totalROI >= 0 ? 'text-purple-400' : 'text-red-400'}`}>
+                    {totalROI >= 0 ? '+' : ''}{totalROI.toFixed(2)}%
+                  </span>
                 </div>
               </CardContent>
             </Card>

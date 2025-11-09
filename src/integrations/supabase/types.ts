@@ -47,6 +47,54 @@ export type Database = {
         }
         Relationships: []
       }
+      trades: {
+        Row: {
+          amount: number
+          closed_at: string | null
+          created_at: string
+          cryptocurrency: string
+          current_price: number
+          entry_price: number
+          id: string
+          leverage: number
+          pnl: number | null
+          position_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          closed_at?: string | null
+          created_at?: string
+          cryptocurrency: string
+          current_price: number
+          entry_price: number
+          id?: string
+          leverage?: number
+          pnl?: number | null
+          position_type: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          closed_at?: string | null
+          created_at?: string
+          cryptocurrency?: string
+          current_price?: number
+          entry_price?: number
+          id?: string
+          leverage?: number
+          pnl?: number | null
+          position_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
