@@ -95,6 +95,48 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          btc_address: string | null
+          created_at: string
+          currency: string
+          id: string
+          narration: string | null
+          status: string
+          transaction_hash: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          btc_address?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          narration?: string | null
+          status?: string
+          transaction_hash?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          btc_address?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          narration?: string | null
+          status?: string
+          transaction_hash?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
