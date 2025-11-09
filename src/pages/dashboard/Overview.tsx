@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { DollarSign, Bitcoin, Gem, TrendingUp, CreditCard } from "lucide-react";
+import { BarChart3, TrendingUp, Wallet, History, CreditCard, ArrowDownToLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const Overview = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  const [cryptoPrices] = useState({
-    btc: 103837.17,
-    eth: 3544.62,
-    ltc: 109.35,
+  const [cryptoPrices, setCryptoPrices] = useState({
+    btc: 0,
+    eth: 0,
+    ltc: 0,
   });
 
   useEffect(() => {
@@ -26,91 +27,143 @@ const Overview = () => {
       }
     };
 
-    fetchProfile();
-  }, []);
+    const fetchCryptoPrices = async () => {
+      try {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd"
+        );
+        const data = await response.json();
+        setCryptoPrices({
+          btc: data.bitcoin?.usd || 0,
+          eth: data.ethereum?.usd || 0,
+          ltc: data.litecoin?.usd || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching crypto prices:", error);
+      }
+    };
 
-  const usdBalance = profile?.usd_balance || 0;
-  const btcEquivalent = usdBalance / cryptoPrices.btc;
-  const ethEquivalent = usdBalance / cryptoPrices.eth;
-  const ltcEquivalent = usdBalance / cryptoPrices.ltc;
+    fetchProfile();
+    fetchCryptoPrices();
+
+    // Update prices every 30 seconds
+    const interval = setInterval(fetchCryptoPrices, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Crypto Wallet</h1>
-        <p className="text-muted-foreground">Manage your digital assets and trading portfolio</p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">USD Balance</CardTitle>
-            <DollarSign className="h-5 w-5 opacity-90" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">${usdBalance.toFixed(2)}</div>
-            <p className="text-xs opacity-90 mt-1">Total USD Balance</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">BTC Equivalent</CardTitle>
-            <Bitcoin className="h-5 w-5 opacity-90" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{btcEquivalent.toFixed(8)} BTC</div>
-            <p className="text-xs opacity-90 mt-1">${cryptoPrices.btc.toFixed(2)} per BTC</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">ETH Equivalent</CardTitle>
-            <Gem className="h-5 w-5 opacity-90" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{ethEquivalent.toFixed(6)} ETH</div>
-            <p className="text-xs opacity-90 mt-1">${cryptoPrices.eth.toFixed(2)} per ETH</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium opacity-90">LTC Equivalent</CardTitle>
-            <TrendingUp className="h-5 w-5 opacity-90" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{ltcEquivalent.toFixed(4)} LTC</div>
-            <p className="text-xs opacity-90 mt-1">${cryptoPrices.ltc.toFixed(2)} per LTC</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="bg-card/50 backdrop-blur">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <CreditCard className="h-6 w-6 text-primary" />
-            <CardTitle>KYC Verification Status</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium mb-2">Identity Verification</p>
-              <Badge variant="secondary" className="bg-orange-500/20 text-orange-600 border-orange-500/30">
-                ⚠️ {profile?.kyc_status === "pending" ? "Pending Review" : profile?.kyc_status || "Pending Review"}
-              </Badge>
-              <p className="text-sm text-muted-foreground mt-3">
-                Complete KYC verification to enable withdrawals and access all features.
-              </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Bitcoin Live Chart */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <span className="text-orange-500 text-2xl">₿</span>
+              <CardTitle>Bitcoin Live Chart</CardTitle>
             </div>
-            <Button variant="default" className="bg-primary hover:bg-primary/90">
-              Complete KYC
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardHeader>
+          <CardContent>
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-background">
+              <iframe
+                src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_76d87&symbol=BTCUSD&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=%5B%5D&theme=dark&style=1&timezone=Etc%2FUTC&withdateranges=1&studies_overrides=%7B%7D&overrides=%7B%7D&enabled_features=%5B%5D&disabled_features=%5B%5D&locale=en&utm_source=localhost&utm_medium=widget_new&utm_campaign=chart&utm_term=BTCUSD"
+                className="w-full h-full"
+                frameBorder="0"
+                allowTransparency={true}
+                scrolling="no"
+                allowFullScreen={true}
+              />
+            </div>
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Current Price</span>
+              <span className="text-xl font-bold text-green-500">
+                ${cryptoPrices.btc.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Portfolio Overview */}
+        <Card className="bg-card border-border">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-green-500" />
+              <CardTitle>Portfolio Overview</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Card className="bg-gradient-to-br from-green-900/30 to-green-800/20 border-green-500/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-green-400">$</span>
+                    <span className="text-foreground">Active Trades Profit</span>
+                  </div>
+                  <span className="text-xl font-bold text-green-400">+$0.00</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-500/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-blue-400" />
+                    <span className="text-foreground">Active Trades</span>
+                  </div>
+                  <span className="text-xl font-bold text-blue-400">0</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-purple-500/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-4 w-4 text-purple-400" />
+                    <span className="text-foreground">Active Trades ROI</span>
+                  </div>
+                  <span className="text-xl font-bold text-purple-400">0.0%</span>
+                </div>
+              </CardContent>
+            </Card>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Button
+          onClick={() => navigate("/dashboard/trade")}
+          className="h-20 bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white border-0"
+        >
+          <BarChart3 className="mr-2 h-5 w-5" />
+          Start Trading
+        </Button>
+
+        <Button
+          onClick={() => navigate("/dashboard/deposit")}
+          className="h-20 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white border-0"
+        >
+          <CreditCard className="mr-2 h-5 w-5" />
+          Deposit Funds
+        </Button>
+
+        <Button
+          onClick={() => navigate("/dashboard/withdraw")}
+          className="h-20 bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white border-0"
+        >
+          <ArrowDownToLine className="mr-2 h-5 w-5" />
+          Withdraw
+        </Button>
+
+        <Button
+          onClick={() => navigate("/dashboard/history")}
+          className="h-20 bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white border-0"
+        >
+          <History className="mr-2 h-5 w-5" />
+          View History
+        </Button>
+      </div>
     </div>
   );
 };
