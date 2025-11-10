@@ -61,9 +61,44 @@ const Overview = () => {
     fetchProfile();
     fetchCryptoPrices();
 
+    // Set up realtime subscription for profile updates
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const channel = supabase
+        .channel('profile-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Profile updated in realtime:', payload);
+            setProfile(payload.new);
+            setBalance(payload.new.usd_balance || 0);
+            toast.success("Your balance has been updated!");
+          }
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    const channelPromise = setupRealtimeSubscription();
+
     // Update prices every 30 seconds
     const interval = setInterval(fetchCryptoPrices, 30000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      channelPromise.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
+    };
   }, []);
 
   // Calculate total PNL from active trades

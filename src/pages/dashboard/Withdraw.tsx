@@ -33,7 +33,41 @@ const Withdraw = () => {
         }
       }
     };
+    
     fetchUserData();
+
+    // Set up realtime subscription for profile updates
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const channel = supabase
+        .channel('withdraw-balance-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Balance updated in realtime:', payload);
+            setBalance(payload.new.usd_balance || 0);
+          }
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    const channelPromise = setupRealtimeSubscription();
+    
+    return () => {
+      channelPromise.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
+    };
   }, []);
 
   const handleWithdraw = async () => {
