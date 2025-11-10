@@ -103,31 +103,31 @@ const Dashboard = () => {
         <DashboardSidebar />
         
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border bg-background/80 backdrop-blur-lg flex items-center justify-between px-6">
+          <header className="h-16 border-b border-border/50 bg-card/40 backdrop-blur-xl flex items-center justify-between px-6 shadow-lg">
             <div className="flex items-center gap-4">
-              <SidebarTrigger />
+              <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
               <div>
-                <h1 className="text-lg font-semibold">Welcome back, {getUsername()}</h1>
+                <h1 className="text-lg font-semibold bg-gradient-primary bg-clip-text text-transparent">Welcome back, {getUsername()}</h1>
                 <p className="text-sm text-muted-foreground">{profile?.role || "Crypto Trader"}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-all">
                 <Bell className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <Button variant="ghost" size="icon" onClick={handleSignOut} className="hover:bg-destructive/10 hover:text-destructive transition-all">
                 <LogOut className="h-5 w-5" />
               </Button>
-              <Avatar>
-                <AvatarFallback className="bg-primary text-primary-foreground">
+              <Avatar className="ring-2 ring-primary/20">
+                <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
                   {getInitials(user?.email)}
                 </AvatarFallback>
               </Avatar>
             </div>
           </header>
 
-          <main className="flex-1 p-6 bg-gradient-to-br from-background via-background to-primary/5">
+          <main className="flex-1 p-6 bg-gradient-hero overflow-auto">
             <Outlet />
           </main>
         </div>

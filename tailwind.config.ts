@@ -60,8 +60,14 @@ export default {
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
-        "gradient-feature": "var(--gradient-feature)",
+        "gradient-secondary": "var(--gradient-secondary)",
+        "gradient-card": "var(--gradient-card)",
         "gradient-stats": "var(--gradient-stats)",
+        "gradient-hero": "var(--gradient-hero)",
+      },
+      boxShadow: {
+        "glow": "var(--shadow-glow)",
+        "card": "var(--shadow-card)",
       },
       borderRadius: {
         lg: "var(--radius)",
