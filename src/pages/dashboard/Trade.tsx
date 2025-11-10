@@ -86,15 +86,17 @@ const Trade = () => {
 
   const fetchPrice = async () => {
     try {
-      const coinMap: { [key: string]: string } = {
-        BTC: 'bitcoin',
-        ETH: 'ethereum',
-        LTC: 'litecoin'
+      const symbolMap: { [key: string]: string } = {
+        BTC: 'BTCUSDT',
+        ETH: 'ETHUSDT',
+        LTC: 'LTCUSDT'
       };
-      const coinId = coinMap[cryptocurrency];
-      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
+      const symbol = symbolMap[cryptocurrency];
+      const response = await fetch(`https://api.bybit.com/v5/market/tickers?category=linear&symbol=${symbol}`);
       const data = await response.json();
-      setCurrentPrice(data[coinId].usd);
+      if (data.result && data.result.list && data.result.list[0]) {
+        setCurrentPrice(parseFloat(data.result.list[0].lastPrice));
+      }
     } catch (error) {
       console.error("Error fetching price:", error);
     }
