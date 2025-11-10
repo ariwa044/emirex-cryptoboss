@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Users, DollarSign, TrendingUp, LogOut } from "lucide-react";
+import { Users, DollarSign, TrendingUp, LogOut, Edit } from "lucide-react";
+import { EditUserDialog } from "@/components/admin/EditUserDialog";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const AdminDashboard = () => {
     totalBalance: 0,
     totalInvestments: 0,
   });
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -81,6 +84,15 @@ const AdminDashboard = () => {
     toast.success("Signed out successfully");
   };
 
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSuccess = () => {
+    fetchData();
+  };
+
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
@@ -139,6 +151,7 @@ const AdminDashboard = () => {
                   <TableHead>Balance</TableHead>
                   <TableHead>KYC Status</TableHead>
                   <TableHead>Created</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,6 +166,15 @@ const AdminDashboard = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handleEditUser(user)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -195,6 +217,16 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit User Dialog */}
+      {editingUser && (
+        <EditUserDialog
+          user={editingUser}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSuccess={handleEditSuccess}
+        />
+      )}
     </div>
   );
 };

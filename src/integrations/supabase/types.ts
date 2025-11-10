@@ -58,9 +58,12 @@ export type Database = {
       }
       profiles: {
         Row: {
+          btc_wallet_address: string | null
           created_at: string
+          eth_wallet_address: string | null
           id: string
           kyc_status: string | null
+          ltc_wallet_address: string | null
           role: string | null
           updated_at: string
           usd_balance: number | null
@@ -68,9 +71,12 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          btc_wallet_address?: string | null
           created_at?: string
+          eth_wallet_address?: string | null
           id?: string
           kyc_status?: string | null
+          ltc_wallet_address?: string | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null
@@ -78,9 +84,12 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          btc_wallet_address?: string | null
           created_at?: string
+          eth_wallet_address?: string | null
           id?: string
           kyc_status?: string | null
+          ltc_wallet_address?: string | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null
