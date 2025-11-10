@@ -44,8 +44,44 @@ const Trade = () => {
     fetchData();
     fetchPrice();
     
+    // Set up realtime subscription for profile updates
+    const setupRealtimeSubscription = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const channel = supabase
+        .channel('trade-balance-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'profiles',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Balance updated in realtime:', payload);
+            setProfile(payload.new);
+            toast({
+              title: "Balance Updated",
+              description: "Your balance has been updated by admin",
+            });
+          }
+        )
+        .subscribe();
+
+      return channel;
+    };
+
+    const channelPromise = setupRealtimeSubscription();
+    
     const interval = setInterval(fetchPrice, 10000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      channelPromise.then(channel => {
+        if (channel) supabase.removeChannel(channel);
+      });
+    };
   }, []);
 
   const fetchPrice = async () => {
