@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ProfitCalculator from "@/components/ProfitCalculator";
+import WalletDisplay from "@/components/WalletDisplay";
 
 const Overview = () => {
   const navigate = useNavigate();
@@ -154,6 +155,13 @@ const Overview = () => {
 
   return (
     <div className="space-y-6">
+      <WalletDisplay 
+        usdBalance={balance}
+        btcPrice={cryptoPrices.btc}
+        ethPrice={cryptoPrices.eth}
+        ltcPrice={cryptoPrices.ltc}
+      />
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bitcoin Live Chart */}
         <Card className="bg-card border-border">
