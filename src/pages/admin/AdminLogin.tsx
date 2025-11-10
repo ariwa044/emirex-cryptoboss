@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Shield } from "lucide-react";
+import { z } from "zod";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -18,15 +19,42 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
+      // Validate inputs
+      const schema = z.object({
+        identifier: z.string().trim().min(3, "Enter email or username"),
+        password: z.string().min(6, "Password must be at least 6 characters"),
+      });
+      const parsed = schema.safeParse({ identifier: email, password });
+      if (!parsed.success) {
+        toast.error(parsed.error.errors[0].message);
+        return;
+      }
+
+      // Resolve username -> email if needed via backend function
+      const identifier = email.trim();
+      let emailToUse = identifier;
+      if (!identifier.includes("@")) {
+        const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/resolve-username`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier }),
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body?.error || "Username not found");
+        }
+        const payload = await res.json();
+        emailToUse = payload.email as string;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: emailToUse,
         password,
       });
 
       if (error) throw error;
 
       if (data.user) {
-        // Check if user is admin
         const { data: roleData } = await supabase
           .from("user_roles")
           .select("role")
@@ -43,7 +71,7 @@ const AdminLogin = () => {
         }
       }
     } catch (error: any) {
-      toast.error(error.message || "Login failed");
+      toast.error(error.message || "Invalid login credentials");
     } finally {
       setLoading(false);
     }
@@ -65,7 +93,7 @@ const AdminLogin = () => {
             <div>
               <Input
                 type="text"
-                placeholder="Email"
+                placeholder="Email or Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
