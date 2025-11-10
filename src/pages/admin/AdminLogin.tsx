@@ -55,19 +55,24 @@ const AdminLogin = () => {
       if (error) throw error;
 
       if (data.user) {
-        const { data: roleData } = await supabase
+        console.log("User logged in:", data.user.id);
+        
+        const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .eq("role", "admin")
           .maybeSingle();
 
-        if (roleData) {
+        console.log("Role check result:", { roleData, roleError });
+
+        if (roleData && roleData.role === "admin") {
           toast.success("Admin login successful!");
           navigate("/admin/dashboard");
         } else {
           await supabase.auth.signOut();
           toast.error("Access denied. Admin privileges required.");
+          console.error("No admin role found for user:", data.user.id);
         }
       }
     } catch (error: any) {
