@@ -12,7 +12,6 @@ import WalletDisplay from "@/components/WalletDisplay";
 const Overview = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  const [balance, setBalance] = useState(0);
   const [cryptoPrices, setCryptoPrices] = useState({
     btc: 0,
     eth: 0,
@@ -30,7 +29,6 @@ const Overview = () => {
           .eq("user_id", user.id)
           .maybeSingle();
         setProfile(data);
-        setBalance(data?.usd_balance || 0);
 
         // Fetch active trades
         const { data: tradesData } = await supabase
@@ -79,7 +77,6 @@ const Overview = () => {
           (payload) => {
             console.log('Profile updated in realtime:', payload);
             setProfile(payload.new);
-            setBalance(payload.new.usd_balance || 0);
             toast.success("Your balance has been updated!");
           }
         )
@@ -129,7 +126,9 @@ const Overview = () => {
   const totalROI = calculateTotalROI();
 
   const handleInvest = async (plan: any) => {
-    if (balance < 300) {
+    const currentBalance = profile?.usd_balance || 0;
+    
+    if (currentBalance < 300) {
       toast.error("Insufficient balance. Minimum investment is $300");
       navigate("/dashboard/deposit");
       return;
@@ -138,13 +137,13 @@ const Overview = () => {
     const minAmount = parseInt(plan.minInvest.replace(/[$,]/g, ''));
     const maxAmount = plan.maxInvest === "Unlimited" ? Infinity : parseInt(plan.maxInvest.replace(/[$,]/g, ''));
     
-    if (balance < minAmount) {
+    if (currentBalance < minAmount) {
       toast.error(`Insufficient balance. Minimum for ${plan.name} is ${plan.minInvest}`);
       navigate("/dashboard/deposit");
       return;
     }
 
-    if (balance > maxAmount) {
+    if (currentBalance > maxAmount) {
       toast.error(`Your balance exceeds the maximum for ${plan.name}. Please choose a higher tier plan.`);
       return;
     }
@@ -164,7 +163,7 @@ const Overview = () => {
         .insert({
           user_id: user.id,
           plan_name: plan.name,
-          amount: balance,
+          amount: currentBalance,
           daily_rate: dailyRate,
           duration_days: durationDays,
           maturity_date: maturityDate.toISOString()
@@ -180,8 +179,7 @@ const Overview = () => {
 
       if (updateError) throw updateError;
 
-      toast.success(`Successfully invested $${balance.toFixed(2)} in ${plan.name}!`);
-      setBalance(0);
+      toast.success(`Successfully invested $${currentBalance.toFixed(2)} in ${plan.name}!`);
     } catch (error) {
       console.error('Investment error:', error);
       toast.error("Failed to process investment. Please try again.");
@@ -191,7 +189,10 @@ const Overview = () => {
   return (
     <div className="space-y-6">
       <WalletDisplay 
-        usdBalance={balance}
+        usdBalance={profile?.usd_balance || 0}
+        btcBalance={profile?.btc_balance || 0}
+        ethBalance={profile?.eth_balance || 0}
+        ltcBalance={profile?.ltc_balance || 0}
         btcPrice={cryptoPrices.btc}
         ethPrice={cryptoPrices.eth}
         ltcPrice={cryptoPrices.ltc}

@@ -3,21 +3,25 @@ import { DollarSign, Bitcoin, Coins } from "lucide-react";
 
 interface WalletDisplayProps {
   usdBalance: number;
+  btcBalance: number;
+  ethBalance: number;
+  ltcBalance: number;
   btcPrice: number;
   ethPrice: number;
   ltcPrice: number;
 }
 
-const WalletDisplay = ({ usdBalance, btcPrice, ethPrice, ltcPrice }: WalletDisplayProps) => {
-  const btcEquivalent = btcPrice > 0 ? usdBalance / btcPrice : 0;
-  const ethEquivalent = ethPrice > 0 ? usdBalance / ethPrice : 0;
-  const ltcEquivalent = ltcPrice > 0 ? usdBalance / ltcPrice : 0;
+const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPrice, ethPrice, ltcPrice }: WalletDisplayProps) => {
+  const btcValue = btcBalance * btcPrice;
+  const ethValue = ethBalance * ethPrice;
+  const ltcValue = ltcBalance * ltcPrice;
+  const totalValue = usdBalance + btcValue + ethValue + ltcValue;
 
   return (
     <div className="mb-8">
       <div className="mb-4">
         <h1 className="text-4xl font-bold text-foreground">Crypto Wallet</h1>
-        <p className="text-muted-foreground">Manage your digital assets and trading portfolio</p>
+        <p className="text-muted-foreground">Total Portfolio Value: ${totalValue.toFixed(2)}</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -30,51 +34,51 @@ const WalletDisplay = ({ usdBalance, btcPrice, ethPrice, ltcPrice }: WalletDispl
             <div className="text-4xl font-bold text-foreground">
               ${usdBalance.toFixed(2)}
             </div>
-            <p className="text-sm text-muted-foreground">Total USD Balance</p>
+            <p className="text-sm text-muted-foreground">Available USD</p>
           </div>
         </Card>
 
         <Card className="p-6 bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-orange-500/30">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-foreground font-medium">BTC Equivalent</span>
+            <span className="text-foreground font-medium">Bitcoin</span>
             <Bitcoin className="h-5 w-5 text-orange-400" />
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {btcEquivalent.toFixed(4)} BTC
+              {btcBalance.toFixed(8)} BTC
             </div>
             <p className="text-sm text-muted-foreground">
-              ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per BTC
+              ≈ ${btcValue.toFixed(2)} (${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/BTC)
             </p>
           </div>
         </Card>
 
         <Card className="p-6 bg-gradient-to-br from-teal-500/20 to-teal-600/20 border-teal-500/30">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-foreground font-medium">ETH Equivalent</span>
+            <span className="text-foreground font-medium">Ethereum</span>
             <Coins className="h-5 w-5 text-teal-400" />
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {ethEquivalent.toFixed(3)} ETH
+              {ethBalance.toFixed(6)} ETH
             </div>
             <p className="text-sm text-muted-foreground">
-              ${ethPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per ETH
+              ≈ ${ethValue.toFixed(2)} (${ethPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ETH)
             </p>
           </div>
         </Card>
 
         <Card className="p-6 bg-gradient-to-br from-purple-500/20 to-purple-600/20 border-purple-500/30">
           <div className="flex items-center justify-between mb-4">
-            <span className="text-foreground font-medium">LTC Equivalent</span>
+            <span className="text-foreground font-medium">Litecoin</span>
             <Coins className="h-5 w-5 text-purple-400" />
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {ltcEquivalent.toFixed(2)} LTC
+              {ltcBalance.toFixed(4)} LTC
             </div>
             <p className="text-sm text-muted-foreground">
-              ${ltcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per LTC
+              ≈ ${ltcValue.toFixed(2)} (${ltcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/LTC)
             </p>
           </div>
         </Card>
