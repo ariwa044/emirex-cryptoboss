@@ -1,4 +1,4 @@
-import { LayoutDashboard, TrendingUp, ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, History, User } from "lucide-react";
+import { LayoutDashboard, TrendingUp, ArrowDownToLine, ArrowUpFromLine, History, User } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar,
@@ -15,7 +15,6 @@ import {
 const navigationItems = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
   { title: "Trade", url: "/dashboard/trade", icon: TrendingUp },
-  { title: "Swap", url: "/dashboard/swap", icon: ArrowRightLeft },
   { title: "Deposit", url: "/dashboard/deposit", icon: ArrowDownToLine },
   { title: "Withdraw", url: "/dashboard/withdraw", icon: ArrowUpFromLine },
   { title: "History", url: "/dashboard/history", icon: History },

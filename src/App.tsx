@@ -8,7 +8,6 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Overview from "./pages/dashboard/Overview";
 import Trade from "./pages/dashboard/Trade";
-import Swap from "./pages/dashboard/Swap";
 import Deposit from "./pages/dashboard/Deposit";
 import Withdraw from "./pages/dashboard/Withdraw";
 import History from "./pages/dashboard/History";
@@ -31,7 +30,6 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />}>
             <Route index element={<Overview />} />
             <Route path="trade" element={<Trade />} />
-            <Route path="swap" element={<Swap />} />
             <Route path="deposit" element={<Deposit />} />
             <Route path="withdraw" element={<Withdraw />} />
             <Route path="history" element={<History />} />
