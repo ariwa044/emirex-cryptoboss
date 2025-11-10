@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
       investments: {
         Row: {
           amount: number
@@ -64,6 +91,7 @@ export type Database = {
           id: string
           kyc_status: string | null
           ltc_wallet_address: string | null
+          profit_balance: number | null
           role: string | null
           updated_at: string
           usd_balance: number | null
@@ -77,6 +105,7 @@ export type Database = {
           id?: string
           kyc_status?: string | null
           ltc_wallet_address?: string | null
+          profit_balance?: number | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null
@@ -90,6 +119,7 @@ export type Database = {
           id?: string
           kyc_status?: string | null
           ltc_wallet_address?: string | null
+          profit_balance?: number | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null

@@ -51,6 +51,12 @@ export default {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        "admin-primary": "hsl(var(--admin-primary))",
+        "admin-primary-foreground": "hsl(var(--admin-primary-foreground))",
+        "admin-secondary": "hsl(var(--admin-secondary))",
+        "admin-accent": "hsl(var(--admin-accent))",
+        "admin-sidebar": "hsl(var(--admin-sidebar))",
+        "admin-card": "hsl(var(--admin-card))",
       },
       backgroundImage: {
         "gradient-primary": "var(--gradient-primary)",
