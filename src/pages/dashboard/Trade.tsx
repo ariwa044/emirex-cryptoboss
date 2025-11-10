@@ -86,10 +86,15 @@ const Trade = () => {
 
   const fetchPrice = async () => {
     try {
-      const symbol = `${cryptocurrency}USDT`;
-      const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+      const coinMap: { [key: string]: string } = {
+        BTC: 'bitcoin',
+        ETH: 'ethereum',
+        LTC: 'litecoin'
+      };
+      const coinId = coinMap[cryptocurrency];
+      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
       const data = await response.json();
-      setCurrentPrice(parseFloat(data.price));
+      setCurrentPrice(data[coinId].usd);
     } catch (error) {
       console.error("Error fetching price:", error);
     }
@@ -239,6 +244,21 @@ const Trade = () => {
               <Label>Current Price</Label>
               <div className="text-2xl font-bold text-green-500">
                 ${currentPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
+              <div>
+                <Label className="text-xs text-muted-foreground">Margin Required</Label>
+                <div className="text-lg font-semibold">
+                  ${amount ? (parseFloat(amount)).toFixed(2) : '0.00'}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Position Size</Label>
+                <div className="text-lg font-semibold">
+                  ${amount && leverage ? (parseFloat(amount) * parseInt(leverage)).toFixed(2) : '0.00'}
+                </div>
               </div>
             </div>
 
