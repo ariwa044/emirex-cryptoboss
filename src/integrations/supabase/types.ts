@@ -85,11 +85,14 @@ export type Database = {
       }
       profiles: {
         Row: {
+          btc_balance: number | null
           btc_wallet_address: string | null
           created_at: string
+          eth_balance: number | null
           eth_wallet_address: string | null
           id: string
           kyc_status: string | null
+          ltc_balance: number | null
           ltc_wallet_address: string | null
           profit_balance: number | null
           role: string | null
@@ -99,11 +102,14 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          btc_balance?: number | null
           btc_wallet_address?: string | null
           created_at?: string
+          eth_balance?: number | null
           eth_wallet_address?: string | null
           id?: string
           kyc_status?: string | null
+          ltc_balance?: number | null
           ltc_wallet_address?: string | null
           profit_balance?: number | null
           role?: string | null
@@ -113,11 +119,14 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          btc_balance?: number | null
           btc_wallet_address?: string | null
           created_at?: string
+          eth_balance?: number | null
           eth_wallet_address?: string | null
           id?: string
           kyc_status?: string | null
+          ltc_balance?: number | null
           ltc_wallet_address?: string | null
           profit_balance?: number | null
           role?: string | null

@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
@@ -18,12 +19,16 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     usd_balance: user?.usd_balance || 0,
+    btc_balance: user?.btc_balance || 0,
+    eth_balance: user?.eth_balance || 0,
+    ltc_balance: user?.ltc_balance || 0,
     profit_balance: user?.profit_balance || 0,
     btc_wallet_address: user?.btc_wallet_address || "",
     eth_wallet_address: user?.eth_wallet_address || "",
     ltc_wallet_address: user?.ltc_wallet_address || "",
   });
   const [fundAmount, setFundAmount] = useState("");
+  const [fundCurrency, setFundCurrency] = useState("usd");
   const [profitAmount, setProfitAmount] = useState("");
 
   const handleAddFunds = () => {
@@ -32,12 +37,14 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
       toast.error("Please enter a valid amount");
       return;
     }
+    const balanceKey = `${fundCurrency}_balance` as keyof typeof formData;
     setFormData(prev => ({
       ...prev,
-      usd_balance: parseFloat(String(prev.usd_balance)) + amount
+      [balanceKey]: parseFloat(String(prev[balanceKey])) + amount
     }));
     setFundAmount("");
-    toast.success(`Added $${amount.toFixed(2)} to balance`);
+    const currencyLabel = fundCurrency.toUpperCase();
+    toast.success(`Added ${amount.toFixed(8)} ${currencyLabel} to balance`);
   };
 
   const handleSubtractFunds = () => {
@@ -46,17 +53,19 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
       toast.error("Please enter a valid amount");
       return;
     }
-    const newBalance = parseFloat(String(formData.usd_balance)) - amount;
+    const balanceKey = `${fundCurrency}_balance` as keyof typeof formData;
+    const newBalance = parseFloat(String(formData[balanceKey])) - amount;
     if (newBalance < 0) {
       toast.error("Insufficient balance");
       return;
     }
     setFormData(prev => ({
       ...prev,
-      usd_balance: newBalance
+      [balanceKey]: newBalance
     }));
     setFundAmount("");
-    toast.success(`Subtracted $${amount.toFixed(2)} from balance`);
+    const currencyLabel = fundCurrency.toUpperCase();
+    toast.success(`Subtracted ${amount.toFixed(8)} ${currencyLabel} from balance`);
   };
 
   const handleAddProfit = () => {
@@ -99,6 +108,9 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
         .from("profiles")
         .update({
           usd_balance: formData.usd_balance,
+          btc_balance: formData.btc_balance,
+          eth_balance: formData.eth_balance,
+          ltc_balance: formData.ltc_balance,
           profit_balance: formData.profit_balance,
           btc_wallet_address: formData.btc_wallet_address.trim() || null,
           eth_wallet_address: formData.eth_wallet_address.trim() || null,
@@ -127,20 +139,55 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
 
         <div className="space-y-4">
           {/* Balance Management */}
-          <div className="space-y-2">
-            <Label>Current Balance</Label>
-            <div className="text-2xl font-bold text-primary">
-              ${parseFloat(String(formData.usd_balance)).toFixed(2)}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>USD Balance</Label>
+              <div className="text-xl font-bold text-primary">
+                ${parseFloat(String(formData.usd_balance)).toFixed(2)}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>BTC Balance</Label>
+              <div className="text-xl font-bold text-primary">
+                {parseFloat(String(formData.btc_balance)).toFixed(8)} BTC
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>ETH Balance</Label>
+              <div className="text-xl font-bold text-primary">
+                {parseFloat(String(formData.eth_balance)).toFixed(8)} ETH
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>LTC Balance</Label>
+              <div className="text-xl font-bold text-primary">
+                {parseFloat(String(formData.ltc_balance)).toFixed(8)} LTC
+              </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="fundAmount">Add/Subtract Funds</Label>
+            <Label htmlFor="fundCurrency">Select Currency</Label>
+            <Select value={fundCurrency} onValueChange={setFundCurrency}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="usd">USD (Main Balance)</SelectItem>
+                <SelectItem value="btc">Bitcoin (BTC)</SelectItem>
+                <SelectItem value="eth">Ethereum (ETH)</SelectItem>
+                <SelectItem value="ltc">Litecoin (LTC)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="fundAmount">Add/Subtract {fundCurrency.toUpperCase()} Funds</Label>
             <div className="flex gap-2">
               <Input
                 id="fundAmount"
                 type="number"
-                step="0.01"
+                step={fundCurrency === "usd" ? "0.01" : "0.00000001"}
                 placeholder="Enter amount"
                 value={fundAmount}
                 onChange={(e) => setFundAmount(e.target.value)}

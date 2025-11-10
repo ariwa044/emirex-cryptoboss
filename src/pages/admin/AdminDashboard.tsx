@@ -156,23 +156,38 @@ const AdminDashboard = () => {
 
       if (txError) throw txError;
 
+      // Determine the balance field based on currency
+      const currencyMap: Record<string, string> = {
+        BTC: "btc_balance",
+        ETH: "eth_balance",
+        LTC: "ltc_balance",
+        USD: "usd_balance",
+      };
+
+      const balanceField = currencyMap[transaction.currency] || "usd_balance";
+
       // Update user balance
       const { data: profile } = await supabase
         .from("profiles")
-        .select("usd_balance")
+        .select(`${balanceField}`)
         .eq("user_id", transaction.user_id)
         .single();
 
       if (profile) {
-        const currentBalance = parseFloat(String(profile.usd_balance));
+        const currentBalance = parseFloat(String(profile[balanceField]));
         const transactionAmount = parseFloat(String(transaction.amount));
         const newBalance = transaction.type === "deposit" 
           ? currentBalance + transactionAmount 
           : currentBalance - transactionAmount;
 
+        if (newBalance < 0) {
+          toast.error("Insufficient balance for withdrawal");
+          return;
+        }
+
         const { error: balanceError } = await supabase
           .from("profiles")
-          .update({ usd_balance: newBalance })
+          .update({ [balanceField]: newBalance })
           .eq("user_id", transaction.user_id);
 
         if (balanceError) throw balanceError;
@@ -182,10 +197,11 @@ const AdminDashboard = () => {
       await logAdminAction("approve_transaction", transaction.user_id, {
         transaction_id: transaction.id,
         type: transaction.type,
-        amount: transaction.amount
+        amount: transaction.amount,
+        currency: transaction.currency
       });
 
-      toast.success(`Transaction approved successfully`);
+      toast.success(`${transaction.currency} transaction approved successfully`);
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to approve transaction");
@@ -321,9 +337,11 @@ const AdminDashboard = () => {
                       <TableRow>
                         <TableHead>Username</TableHead>
                         <TableHead>Email</TableHead>
-                        <TableHead>Balance</TableHead>
+                        <TableHead>USD</TableHead>
+                        <TableHead>BTC</TableHead>
+                        <TableHead>ETH</TableHead>
+                        <TableHead>LTC</TableHead>
                         <TableHead>Profit</TableHead>
-                        <TableHead>Role</TableHead>
                         <TableHead>Created</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -334,8 +352,10 @@ const AdminDashboard = () => {
                           <TableCell className="font-medium">{user.username}</TableCell>
                           <TableCell>{user.email}</TableCell>
                           <TableCell className="font-semibold text-admin-accent">${parseFloat(user.usd_balance).toFixed(2)}</TableCell>
+                          <TableCell className="font-semibold text-admin-accent">{parseFloat(user.btc_balance || 0).toFixed(8)}</TableCell>
+                          <TableCell className="font-semibold text-admin-accent">{parseFloat(user.eth_balance || 0).toFixed(8)}</TableCell>
+                          <TableCell className="font-semibold text-admin-accent">{parseFloat(user.ltc_balance || 0).toFixed(8)}</TableCell>
                           <TableCell className="font-semibold text-success">${parseFloat(user.profit_balance || 0).toFixed(2)}</TableCell>
-                          <TableCell>{user.role}</TableCell>
                           <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                           <TableCell>
                             <Button 
