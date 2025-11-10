@@ -87,7 +87,9 @@ const Trade = () => {
   const fetchPrice = async () => {
     try {
       const symbol = `${cryptocurrency}USDT`;
-      const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/crypto-prices?symbol=${symbol}`
+      );
       const data = await response.json();
       setCurrentPrice(parseFloat(data.price));
     } catch (error) {

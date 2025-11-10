@@ -2,3 +2,6 @@ project_id = "uptmvxnavhetubwdcnxf"
 
 [functions.resolve-username]
 verify_jwt = false
+
+[functions.crypto-prices]
+verify_jwt = false
