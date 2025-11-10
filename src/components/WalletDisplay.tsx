@@ -41,7 +41,7 @@ const WalletDisplay = ({ usdBalance, btcPrice, ethPrice, ltcPrice }: WalletDispl
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {btcEquivalent.toFixed(8)} BTC
+              {btcEquivalent.toFixed(4)} BTC
             </div>
             <p className="text-sm text-muted-foreground">
               ${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per BTC
@@ -56,7 +56,7 @@ const WalletDisplay = ({ usdBalance, btcPrice, ethPrice, ltcPrice }: WalletDispl
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {ethEquivalent.toFixed(6)} ETH
+              {ethEquivalent.toFixed(3)} ETH
             </div>
             <p className="text-sm text-muted-foreground">
               ${ethPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per ETH
@@ -71,7 +71,7 @@ const WalletDisplay = ({ usdBalance, btcPrice, ethPrice, ltcPrice }: WalletDispl
           </div>
           <div className="space-y-1">
             <div className="text-4xl font-bold text-foreground">
-              {ltcEquivalent.toFixed(4)} LTC
+              {ltcEquivalent.toFixed(2)} LTC
             </div>
             <p className="text-sm text-muted-foreground">
               ${ltcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} per LTC
