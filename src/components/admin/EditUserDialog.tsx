@@ -18,11 +18,13 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     usd_balance: user?.usd_balance || 0,
+    profit_balance: user?.profit_balance || 0,
     btc_wallet_address: user?.btc_wallet_address || "",
     eth_wallet_address: user?.eth_wallet_address || "",
     ltc_wallet_address: user?.ltc_wallet_address || "",
   });
   const [fundAmount, setFundAmount] = useState("");
+  const [profitAmount, setProfitAmount] = useState("");
 
   const handleAddFunds = () => {
     const amount = parseFloat(fundAmount);
@@ -57,6 +59,39 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
     toast.success(`Subtracted $${amount.toFixed(2)} from balance`);
   };
 
+  const handleAddProfit = () => {
+    const amount = parseFloat(profitAmount);
+    if (!amount || isNaN(amount)) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      profit_balance: parseFloat(String(prev.profit_balance)) + amount
+    }));
+    setProfitAmount("");
+    toast.success(`Added $${amount.toFixed(2)} to profit`);
+  };
+
+  const handleSubtractProfit = () => {
+    const amount = parseFloat(profitAmount);
+    if (!amount || isNaN(amount)) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    const newBalance = parseFloat(String(formData.profit_balance)) - amount;
+    if (newBalance < 0) {
+      toast.error("Insufficient profit balance");
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      profit_balance: newBalance
+    }));
+    setProfitAmount("");
+    toast.success(`Subtracted $${amount.toFixed(2)} from profit`);
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -64,6 +99,7 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
         .from("profiles")
         .update({
           usd_balance: formData.usd_balance,
+          profit_balance: formData.profit_balance,
           btc_wallet_address: formData.btc_wallet_address.trim() || null,
           eth_wallet_address: formData.eth_wallet_address.trim() || null,
           ltc_wallet_address: formData.ltc_wallet_address.trim() || null,
@@ -113,6 +149,34 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
                 Add
               </Button>
               <Button onClick={handleSubtractFunds} variant="destructive" size="sm">
+                Subtract
+              </Button>
+            </div>
+          </div>
+
+          {/* Profit Management */}
+          <div className="space-y-2">
+            <Label>Current Profit Balance</Label>
+            <div className="text-2xl font-bold text-success">
+              ${parseFloat(String(formData.profit_balance)).toFixed(2)}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="profitAmount">Add/Subtract Profit</Label>
+            <div className="flex gap-2">
+              <Input
+                id="profitAmount"
+                type="number"
+                step="0.01"
+                placeholder="Enter amount"
+                value={profitAmount}
+                onChange={(e) => setProfitAmount(e.target.value)}
+              />
+              <Button onClick={handleAddProfit} variant="default" size="sm">
+                Add
+              </Button>
+              <Button onClick={handleSubtractProfit} variant="destructive" size="sm">
                 Subtract
               </Button>
             </div>

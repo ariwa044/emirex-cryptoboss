@@ -44,6 +44,14 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(24 95% 53%), hsl(217 91% 60%));
     --gradient-feature: linear-gradient(135deg, hsl(24 85% 60%), hsl(217 80% 65%));
     --gradient-stats: linear-gradient(90deg, hsl(25 50% 95%), hsl(217 30% 95%));
+    
+    /* Admin theme colors */
+    --admin-primary: 217 91% 60%;
+    --admin-primary-foreground: 0 0% 100%;
+    --admin-secondary: 210 100% 97%;
+    --admin-accent: 215 100% 50%;
+    --admin-sidebar: 217 91% 60%;
+    --admin-card: 0 0% 100%;
   }
 
   .dark {
