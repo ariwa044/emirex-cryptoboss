@@ -146,7 +146,7 @@ const History = () => {
                             {item.status}
                           </Badge>
                           <p className="text-sm font-medium mt-1">
-                            {item.type === 'transaction' ? `$${item.amount}` : `$${item.amount} @ $${item.entry_price}`}
+                            {item.type === 'transaction' ? `$${item.amount || 0}` : `$${item.amount || 0} @ $${item.entry_price || 0}`}
                           </p>
                         </div>
                       </div>
@@ -192,11 +192,11 @@ const History = () => {
                           {trade.position_type}
                         </Badge>
                       </TableCell>
-                      <TableCell>${trade.entry_price.toLocaleString()}</TableCell>
-                      <TableCell>${trade.amount.toFixed(2)}</TableCell>
+                      <TableCell>${trade.entry_price?.toLocaleString() || '0'}</TableCell>
+                      <TableCell>${trade.amount?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>{trade.leverage}x</TableCell>
-                      <TableCell className={trade.pnl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                        ${trade.pnl.toFixed(2)}
+                      <TableCell className={(trade.pnl ?? 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                        ${(trade.pnl ?? 0).toFixed(2)}
                       </TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(trade.status)}>{trade.status}</Badge>
@@ -244,7 +244,7 @@ const History = () => {
                           {transaction.type}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-medium">${transaction.amount.toFixed(2)}</TableCell>
+                      <TableCell className="font-medium">${transaction.amount?.toFixed(2) || '0.00'}</TableCell>
                       <TableCell>{transaction.currency}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(transaction.status)}>{transaction.status}</Badge>
