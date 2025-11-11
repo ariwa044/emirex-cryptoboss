@@ -4,7 +4,7 @@ import { TrendingUp, Shield } from "lucide-react";
 
 const HeroSection = () => {
   return (
-    <section className="pt-32 pb-20 px-4">
+    <section id="home" className="pt-32 pb-20 px-4">
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
