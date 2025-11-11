@@ -1,10 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TrendingUp, Shield } from "lucide-react";
-
 const HeroSection = () => {
-  return (
-    <section id="home" className="pt-32 pb-20 px-4">
+  return <section id="home" className="pt-32 pb-20 px-4">
       <div className="container mx-auto">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left Content */}
@@ -31,9 +29,7 @@ const HeroSection = () => {
               <Button variant="gradient" size="lg" className="text-base px-8">
                 Start Trading Now
               </Button>
-              <Button variant="outline" size="lg" className="text-base px-8">
-                View Live Demo
-              </Button>
+              
             </div>
 
             {/* Stats */}
@@ -106,8 +102,6 @@ const HeroSection = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
