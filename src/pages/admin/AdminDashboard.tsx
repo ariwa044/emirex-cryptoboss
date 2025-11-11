@@ -7,8 +7,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle } from "lucide-react";
+import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle, Settings } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -23,6 +25,12 @@ const AdminDashboard = () => {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [websiteSettings, setWebsiteSettings] = useState({
+    deposit_btc_address: "",
+    deposit_eth_address: "",
+    deposit_ltc_address: ""
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
 
   useEffect(() => {
     checkAdminAccess();
@@ -72,6 +80,19 @@ const AdminDashboard = () => {
   };
 
   const fetchData = async () => {
+    // Fetch website settings
+    const { data: settingsData } = await supabase
+      .from("website_settings")
+      .select("*");
+    
+    if (settingsData) {
+      const settings: any = {};
+      settingsData.forEach((setting) => {
+        settings[setting.setting_key] = setting.setting_value;
+      });
+      setWebsiteSettings(settings);
+    }
+
     // Fetch all profiles with user emails
     const { data: profilesData } = await supabase
       .from("profiles")
@@ -273,6 +294,15 @@ const AdminDashboard = () => {
             >
               <History className="h-5 w-5" />
               Admin History
+            </button>
+            <button
+              onClick={() => setActiveTab("settings")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "settings" ? "bg-white/20" : "hover:bg-white/10"
+              }`}
+            >
+              <Settings className="h-5 w-5" />
+              Website Settings
             </button>
           </nav>
           <Button
@@ -557,6 +587,93 @@ const AdminDashboard = () => {
                     ))}
                   </TableBody>
                 </Table>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === "settings" && (
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-6">Website Settings</h2>
+            
+            <Card className="bg-admin-card border-admin-primary/20">
+              <CardHeader>
+                <CardTitle className="text-foreground">Deposit Addresses</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="btc-address" className="text-foreground">Bitcoin (BTC) Deposit Address</Label>
+                  <Input
+                    id="btc-address"
+                    value={websiteSettings.deposit_btc_address}
+                    onChange={(e) => setWebsiteSettings(prev => ({ ...prev, deposit_btc_address: e.target.value }))}
+                    placeholder="Enter BTC address"
+                    className="bg-background/50"
+                  />
+                  <p className="text-xs text-muted-foreground">This address will be shown to all users for Bitcoin deposits</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="eth-address" className="text-foreground">Ethereum (ETH) Deposit Address</Label>
+                  <Input
+                    id="eth-address"
+                    value={websiteSettings.deposit_eth_address}
+                    onChange={(e) => setWebsiteSettings(prev => ({ ...prev, deposit_eth_address: e.target.value }))}
+                    placeholder="Enter ETH address"
+                    className="bg-background/50"
+                  />
+                  <p className="text-xs text-muted-foreground">This address will be shown to all users for Ethereum deposits</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ltc-address" className="text-foreground">Litecoin (LTC) Deposit Address</Label>
+                  <Input
+                    id="ltc-address"
+                    value={websiteSettings.deposit_ltc_address}
+                    onChange={(e) => setWebsiteSettings(prev => ({ ...prev, deposit_ltc_address: e.target.value }))}
+                    placeholder="Enter LTC address"
+                    className="bg-background/50"
+                  />
+                  <p className="text-xs text-muted-foreground">This address will be shown to all users for Litecoin deposits</p>
+                </div>
+
+                <Button
+                  onClick={async () => {
+                    setSavingSettings(true);
+                    try {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      
+                      await Promise.all([
+                        supabase.from("website_settings").update({ 
+                          setting_value: websiteSettings.deposit_btc_address,
+                          updated_by: user?.id 
+                        }).eq("setting_key", "deposit_btc_address"),
+                        supabase.from("website_settings").update({ 
+                          setting_value: websiteSettings.deposit_eth_address,
+                          updated_by: user?.id 
+                        }).eq("setting_key", "deposit_eth_address"),
+                        supabase.from("website_settings").update({ 
+                          setting_value: websiteSettings.deposit_ltc_address,
+                          updated_by: user?.id 
+                        }).eq("setting_key", "deposit_ltc_address")
+                      ]);
+
+                      await logAdminAction("update_settings", null, {
+                        settings_updated: ["deposit_btc_address", "deposit_eth_address", "deposit_ltc_address"]
+                      });
+
+                      toast.success("Website settings updated successfully");
+                    } catch (error: any) {
+                      toast.error(error.message || "Failed to update settings");
+                    } finally {
+                      setSavingSettings(false);
+                    }
+                  }}
+                  disabled={savingSettings}
+                  className="w-full bg-admin-primary hover:bg-admin-accent"
+                >
+                  {savingSettings ? "Saving..." : "Save Settings"}
+                </Button>
               </CardContent>
             </Card>
           </div>

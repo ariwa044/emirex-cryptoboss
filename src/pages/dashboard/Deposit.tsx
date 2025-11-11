@@ -25,28 +25,30 @@ const Deposit = () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUserId(user?.id || null);
 
-      // Fetch admin wallet addresses from any admin user
-      const { data: adminRole } = await supabase
-        .from("user_roles")
-        .select("user_id")
-        .eq("role", "admin")
-        .limit(1)
-        .maybeSingle();
+      // Fetch deposit addresses from website settings
+      const { data: settingsData } = await supabase
+        .from("website_settings")
+        .select("*")
+        .in("setting_key", ["deposit_btc_address", "deposit_eth_address", "deposit_ltc_address"]);
 
-      if (adminRole) {
-        const { data: adminProfile } = await supabase
-          .from("profiles")
-          .select("btc_wallet_address, eth_wallet_address, ltc_wallet_address")
-          .eq("user_id", adminRole.user_id)
-          .single();
-
-        if (adminProfile) {
-          setWalletAddresses({
-            btc: adminProfile.btc_wallet_address || "Not configured yet",
-            eth: adminProfile.eth_wallet_address || "Not configured yet",
-            ltc: adminProfile.ltc_wallet_address || "Not configured yet"
-          });
-        }
+      if (settingsData) {
+        const addresses: any = {
+          btc: "Not configured yet",
+          eth: "Not configured yet",
+          ltc: "Not configured yet"
+        };
+        
+        settingsData.forEach((setting) => {
+          if (setting.setting_key === "deposit_btc_address") {
+            addresses.btc = setting.setting_value !== "Not configured" ? setting.setting_value : "Not configured yet";
+          } else if (setting.setting_key === "deposit_eth_address") {
+            addresses.eth = setting.setting_value !== "Not configured" ? setting.setting_value : "Not configured yet";
+          } else if (setting.setting_key === "deposit_ltc_address") {
+            addresses.ltc = setting.setting_value !== "Not configured" ? setting.setting_value : "Not configured yet";
+          }
+        });
+        
+        setWalletAddresses(addresses);
       }
     };
     fetchData();
