@@ -75,7 +75,7 @@ const Trade = () => {
 
     const channelPromise = setupRealtimeSubscription();
     
-    const interval = setInterval(fetchPrice, 10000);
+    const interval = setInterval(fetchPrice, 30000);
     return () => {
       clearInterval(interval);
       channelPromise.then(channel => {
@@ -86,16 +86,16 @@ const Trade = () => {
 
   const fetchPrice = async () => {
     try {
-      const symbolMap: { [key: string]: string } = {
-        BTC: 'BTCUSDT',
-        ETH: 'ETHUSDT',
-        LTC: 'LTCUSDT'
+      const coinGeckoMap: { [key: string]: string } = {
+        BTC: 'bitcoin',
+        ETH: 'ethereum',
+        LTC: 'litecoin'
       };
-      const symbol = symbolMap[cryptocurrency];
-      const response = await fetch(`https://api.bybit.com/v5/market/tickers?category=linear&symbol=${symbol}`);
+      const coinId = coinGeckoMap[cryptocurrency];
+      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`);
       const data = await response.json();
-      if (data.result && data.result.list && data.result.list[0]) {
-        setCurrentPrice(parseFloat(data.result.list[0].lastPrice));
+      if (data[coinId] && data[coinId].usd) {
+        setCurrentPrice(data[coinId].usd);
       }
     } catch (error) {
       console.error("Error fetching price:", error);
