@@ -12,6 +12,9 @@ import Deposit from "./pages/dashboard/Deposit";
 import Withdraw from "./pages/dashboard/Withdraw";
 import History from "./pages/dashboard/History";
 import Profile from "./pages/dashboard/Profile";
+import DemoDashboard from "./pages/demo/DemoDashboard";
+import DemoOverview from "./pages/demo/DemoOverview";
+import DemoTrade from "./pages/demo/DemoTrade";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -34,6 +37,10 @@ const App = () => (
             <Route path="withdraw" element={<Withdraw />} />
             <Route path="history" element={<History />} />
             <Route path="profile" element={<Profile />} />
+          </Route>
+          <Route path="/demo" element={<DemoDashboard />}>
+            <Route index element={<DemoOverview />} />
+            <Route path="trade" element={<DemoTrade />} />
           </Route>
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />

@@ -26,10 +26,12 @@ const HeroSection = () => {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <Button variant="gradient" size="lg" className="text-base px-8">
+              <Button variant="gradient" size="lg" className="text-base px-8" onClick={() => window.location.href = '/auth'}>
                 Start Trading Now
               </Button>
-              
+              <Button variant="outline" size="lg" className="text-base px-8" onClick={() => window.location.href = '/demo'}>
+                Demo Account
+              </Button>
             </div>
 
             {/* Stats */}
