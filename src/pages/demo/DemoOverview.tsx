@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, Wallet, DollarSign } from "lucide-react";
+import { TrendingUp, Wallet, DollarSign, Check, X } from "lucide-react";
 
 const DemoOverview = () => {
   const [demoBalance, setDemoBalance] = useState(100000);
@@ -99,6 +99,69 @@ const DemoOverview = () => {
           </div>
         </Card>
       </div>
+
+      <Card className="p-6">
+        <h3 className="text-lg font-bold mb-4 text-center">Demo vs Real Account</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left py-3 px-2 font-semibold">Feature</th>
+                <th className="text-center py-3 px-2 font-semibold text-primary">Demo Account</th>
+                <th className="text-center py-3 px-2 font-semibold text-success">Real Account</th>
+              </tr>
+            </thead>
+            <tbody className="text-sm">
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Starting Balance</td>
+                <td className="text-center py-3 px-2">$100,000 Virtual</td>
+                <td className="text-center py-3 px-2">Your Deposit</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Financial Risk</td>
+                <td className="text-center py-3 px-2 text-success">Zero Risk</td>
+                <td className="text-center py-3 px-2 text-warning">Real Money</td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Live Market Prices</td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Trading Features</td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Leverage Trading</td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Deposit & Withdraw</td>
+                <td className="text-center py-3 px-2"><X className="inline w-5 h-5 text-destructive" /></td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+              </tr>
+              <tr className="border-b">
+                <td className="py-3 px-2 font-medium">Real Profits</td>
+                <td className="text-center py-3 px-2"><X className="inline w-5 h-5 text-destructive" /></td>
+                <td className="text-center py-3 px-2"><Check className="inline w-5 h-5 text-success" /></td>
+              </tr>
+              <tr>
+                <td className="py-3 px-2 font-medium">Purpose</td>
+                <td className="text-center py-3 px-2 text-primary">Practice & Learn</td>
+                <td className="text-center py-3 px-2 text-success">Real Trading</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
+          <p className="text-sm text-center text-muted-foreground">
+            <strong className="text-foreground">Ready to go live?</strong> Once you're comfortable with the demo account, 
+            create a real account to start earning actual profits from your trading strategies!
+          </p>
+        </div>
+      </Card>
 
       <Card className="p-6 border-success/30 bg-success/5">
         <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
