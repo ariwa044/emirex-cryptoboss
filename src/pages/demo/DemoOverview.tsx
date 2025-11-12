@@ -19,6 +19,49 @@ const DemoOverview = () => {
         <p className="text-muted-foreground">Practice trading with virtual funds</p>
       </div>
 
+      <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <span className="text-2xl">🎯</span>
+            Welcome to Demo Trading
+          </h2>
+          <p className="text-foreground/80 leading-relaxed">
+            This is your risk-free training ground! Practice your trading strategies with <strong>$100,000 in virtual funds</strong>. 
+            Master the platform, test your theories, and build confidence before trading with real money.
+          </p>
+          <div className="grid gap-3 md:grid-cols-2 mt-4">
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+              <span className="text-xl">💡</span>
+              <div>
+                <p className="font-semibold text-sm">Learn Without Risk</p>
+                <p className="text-xs text-muted-foreground">Experiment with different strategies safely</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+              <span className="text-xl">📊</span>
+              <div>
+                <p className="font-semibold text-sm">Real Market Prices</p>
+                <p className="text-xs text-muted-foreground">Practice with live cryptocurrency data</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+              <span className="text-xl">🎓</span>
+              <div>
+                <p className="font-semibold text-sm">Build Your Skills</p>
+                <p className="text-xs text-muted-foreground">Master trading before going live</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 rounded-lg bg-card/50">
+              <span className="text-xl">⚡</span>
+              <div>
+                <p className="font-semibold text-sm">No Pressure</p>
+                <p className="text-xs text-muted-foreground">Take your time to learn and improve</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-6 md:grid-cols-3">
         <Card className="p-6">
           <div className="flex items-center gap-4">
@@ -56,6 +99,39 @@ const DemoOverview = () => {
           </div>
         </Card>
       </div>
+
+      <Card className="p-6 border-success/30 bg-success/5">
+        <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+          <span className="text-xl">✨</span>
+          Pro Trading Tips
+        </h3>
+        <div className="space-y-3">
+          <div className="flex gap-3 items-start">
+            <span className="text-success font-bold">1.</span>
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Start Small:</strong> Begin with smaller positions to understand market movements without overwhelming risk.
+            </p>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="text-success font-bold">2.</span>
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Use Leverage Wisely:</strong> Higher leverage means higher risk. Practice with 1x-2x before using higher multipliers.
+            </p>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="text-success font-bold">3.</span>
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Track Your Performance:</strong> Monitor your wins and losses to identify what strategies work best.
+            </p>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="text-success font-bold">4.</span>
+            <p className="text-sm text-muted-foreground">
+              <strong className="text-foreground">Ready for Real Trading?</strong> Once you're consistently profitable in demo mode, consider upgrading to a live account!
+            </p>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

@@ -116,9 +116,21 @@ const DemoTrade = () => {
 
   return (
     <div className="space-y-6">
+      <Card className="p-4 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-semibold text-sm">Demo Mode Active</p>
+            <p className="text-xs text-muted-foreground">
+              You're trading with virtual funds. Perfect your strategy here before trading with real money!
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div>
         <h1 className="text-3xl font-bold mb-2">Demo Trading</h1>
-        <p className="text-muted-foreground">Practice trading with virtual funds</p>
+        <p className="text-muted-foreground">Practice trading with virtual funds - Learn the platform risk-free</p>
         <p className="text-lg font-semibold mt-2">Demo Balance: ${demoBalance.toLocaleString()}</p>
       </div>
 
