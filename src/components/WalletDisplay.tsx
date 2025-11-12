@@ -31,7 +31,7 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
             <DollarSign className="h-5 w-5 text-blue-400" />
           </div>
           <div className="space-y-1">
-            <div className="text-4xl font-bold text-foreground">
+            <div className="text-2xl font-bold text-foreground break-words">
               ${usdBalance.toFixed(2)}
             </div>
             <p className="text-sm text-muted-foreground">Available USD</p>
@@ -44,10 +44,10 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
             <Bitcoin className="h-5 w-5 text-orange-400" />
           </div>
           <div className="space-y-1">
-            <div className="text-4xl font-bold text-foreground">
+            <div className="text-xl font-bold text-foreground break-words">
               {btcBalance.toFixed(8)} BTC
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               ≈ ${btcValue.toFixed(2)} (${btcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/BTC)
             </p>
           </div>
@@ -59,10 +59,10 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
             <Coins className="h-5 w-5 text-teal-400" />
           </div>
           <div className="space-y-1">
-            <div className="text-4xl font-bold text-foreground">
+            <div className="text-xl font-bold text-foreground break-words">
               {ethBalance.toFixed(6)} ETH
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               ≈ ${ethValue.toFixed(2)} (${ethPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/ETH)
             </p>
           </div>
@@ -74,10 +74,10 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
             <Coins className="h-5 w-5 text-purple-400" />
           </div>
           <div className="space-y-1">
-            <div className="text-4xl font-bold text-foreground">
+            <div className="text-xl font-bold text-foreground break-words">
               {ltcBalance.toFixed(4)} LTC
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               ≈ ${ltcValue.toFixed(2)} (${ltcPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/LTC)
             </p>
           </div>
