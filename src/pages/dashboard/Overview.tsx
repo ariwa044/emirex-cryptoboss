@@ -128,8 +128,8 @@ const Overview = () => {
   const handleInvest = async (plan: any) => {
     const currentBalance = profile?.usd_balance || 0;
     
-    if (currentBalance < 300) {
-      toast.error("Insufficient balance. Minimum investment is $300");
+    if (currentBalance < 100) {
+      toast.error("Insufficient balance. Minimum investment is $100");
       navigate("/dashboard/deposit");
       return;
     }
@@ -318,15 +318,15 @@ const Overview = () => {
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold mb-2">Investment Plans</h2>
-          <p className="text-muted-foreground">Choose a plan that fits your investment goals (Minimum: $300)</p>
+          <p className="text-muted-foreground">Choose a plan that fits your investment goals (Minimum: $100)</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
               name: "Starter Plan",
-              dailyRate: "1.093%",
-              minInvest: "$300",
+              dailyRate: "5%",
+              minInvest: "$100",
               maxInvest: "$5,000",
               duration: "7 days",
               features: ["Daily Returns", "24/7 Support", "Instant Withdrawal"],
@@ -335,7 +335,7 @@ const Overview = () => {
             },
             {
               name: "Professional Plan",
-              dailyRate: "0.62%",
+              dailyRate: "10%",
               minInvest: "$5,001",
               maxInvest: "$20,000",
               duration: "14 days",
@@ -346,7 +346,7 @@ const Overview = () => {
             },
             {
               name: "Premium Plan",
-              dailyRate: "0.3%",
+              dailyRate: "15%",
               minInvest: "$20,001",
               maxInvest: "$50,000",
               duration: "30 days",
@@ -356,7 +356,7 @@ const Overview = () => {
             },
             {
               name: "VIP Plan",
-              dailyRate: "0.4%",
+              dailyRate: "20%",
               minInvest: "$50,001",
               maxInvest: "Unlimited",
               duration: "60 days",

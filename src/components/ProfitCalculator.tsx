@@ -12,12 +12,13 @@ import {
 
 const ProfitCalculator = () => {
   const [investment, setInvestment] = useState(100);
-  const [selectedPlan, setSelectedPlan] = useState("standard");
+  const [selectedPlan, setSelectedPlan] = useState("professional");
 
   const plans = {
-    basic: { name: "Basic Plan", dailyRate: 5 },
-    standard: { name: "Standard Plan", dailyRate: 10 },
+    starter: { name: "Starter Plan", dailyRate: 5 },
+    professional: { name: "Professional Plan", dailyRate: 10 },
     premium: { name: "Premium Plan", dailyRate: 15 },
+    vip: { name: "VIP Plan", dailyRate: 20 },
   };
 
   const calculateProfit = () => {
@@ -83,14 +84,17 @@ const ProfitCalculator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="basic">
-                      Basic Plan (5% daily)
+                    <SelectItem value="starter">
+                      Starter Plan (5% daily)
                     </SelectItem>
-                    <SelectItem value="standard">
-                      Standard Plan (10% daily)
+                    <SelectItem value="professional">
+                      Professional Plan (10% daily)
                     </SelectItem>
                     <SelectItem value="premium">
                       Premium Plan (15% daily)
+                    </SelectItem>
+                    <SelectItem value="vip">
+                      VIP Plan (20% daily)
                     </SelectItem>
                   </SelectContent>
                 </Select>
