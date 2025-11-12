@@ -144,8 +144,8 @@ const DemoTrade = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <Card className="p-4 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
+    <div className="space-y-4 md:space-y-6">
+      <Card className="p-3 md:p-4 bg-gradient-to-r from-warning/10 to-primary/10 border-warning/30">
         <div className="flex items-center gap-3">
           <span className="text-2xl">⚠️</span>
           <div>
@@ -158,13 +158,13 @@ const DemoTrade = () => {
       </Card>
 
       <div>
-        <h1 className="text-3xl font-bold mb-2">Demo Trading</h1>
-        <p className="text-muted-foreground">Practice trading with virtual funds - Learn the platform risk-free</p>
-        <p className="text-lg font-semibold mt-2">Demo Balance: ${demoBalance.toLocaleString()}</p>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Demo Trading</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Practice trading with virtual funds - Learn the platform risk-free</p>
+        <p className="text-base md:text-lg font-semibold mt-2">Demo Balance: ${demoBalance.toLocaleString()}</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card className="p-6">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
+        <Card className="p-4 md:p-6">
           <h2 className="text-xl font-bold mb-4">Open Position</h2>
           <div className="space-y-4">
             <div>
@@ -228,8 +228,8 @@ const DemoTrade = () => {
           </div>
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Open Positions</h2>
+        <Card className="p-4 md:p-6">
+          <h2 className="text-lg md:text-xl font-bold mb-4">Open Positions</h2>
           <div className="space-y-3">
             {trades.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No open trades</p>

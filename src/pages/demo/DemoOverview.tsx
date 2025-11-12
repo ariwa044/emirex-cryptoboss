@@ -13,15 +13,15 @@ const DemoOverview = () => {
   }, []);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 md:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Demo Dashboard</h1>
-        <p className="text-muted-foreground">Practice trading with virtual funds</p>
+        <h1 className="text-2xl md:text-3xl font-bold mb-2">Demo Dashboard</h1>
+        <p className="text-sm md:text-base text-muted-foreground">Practice trading with virtual funds</p>
       </div>
 
-      <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
+      <Card className="p-4 md:p-6 bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20">
         <div className="space-y-3">
-          <h2 className="text-xl font-bold flex items-center gap-2">
+          <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
             <span className="text-2xl">🎯</span>
             Welcome to Demo Trading
           </h2>
