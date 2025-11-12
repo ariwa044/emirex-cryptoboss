@@ -6,62 +6,45 @@ import { Check } from "lucide-react";
 const PricingCards = () => {
   const plans = [
     {
-      name: "Starter Plan",
+      name: "Basic Plan",
       description: "Perfect for beginners looking to start their crypto trading journey",
-      dailyReturn: "109.3%",
+      dailyReturn: "5%",
       investmentRange: "$100 - $999",
-      duration: "5 Days",
       features: [
         "AI-Powered Trading",
         "24/7 Support",
         "Real-time Analytics",
-        "5 Days Duration",
+        "Daily Returns",
       ],
       popular: false,
     },
     {
-      name: "Professional Plan",
+      name: "Standard Plan",
       description: "Advanced trading strategies for experienced traders",
-      dailyReturn: "62%",
+      dailyReturn: "10%",
       investmentRange: "$1,000 - $9,999",
-      duration: "3 Days",
       features: [
         "AI-Powered Trading",
         "24/7 Support",
         "Real-time Analytics",
-        "3 Days Duration",
+        "Daily Returns",
+        "Priority Support",
       ],
       popular: true,
     },
     {
       name: "Premium Plan",
-      description: "Exclusive high-yield trading opportunities",
-      dailyReturn: "30%",
-      investmentRange: "$10,000 - $49,999",
-      duration: "15 Days",
+      description: "Exclusive high-yield trading opportunities for serious investors",
+      dailyReturn: "15%",
+      investmentRange: "$10,000+",
       features: [
         "AI-Powered Trading",
         "24/7 Support",
         "Real-time Analytics",
-        "15 Days Duration",
+        "Daily Returns",
         "Priority Support",
         "Advanced Strategies",
-      ],
-      popular: false,
-    },
-    {
-      name: "VIP Plan",
-      description: "Elite trading with maximum returns and priority support",
-      dailyReturn: "40%",
-      investmentRange: "$50,000+",
-      duration: "30 Days",
-      features: [
-        "AI-Powered Trading",
-        "24/7 Support",
-        "Real-time Analytics",
-        "30 Days Duration",
-        "Priority Support",
-        "Advanced Strategies",
+        "Personal Account Manager",
       ],
       popular: false,
     },
@@ -69,7 +52,7 @@ const PricingCards = () => {
 
   return (
     <div className="space-y-8">
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {plans.map((plan, index) => (
           <Card
             key={index}

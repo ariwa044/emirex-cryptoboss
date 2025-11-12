@@ -177,7 +177,7 @@ const Withdraw = () => {
                 className="mt-1.5"
               />
               <p className="text-xs text-muted-foreground mt-1.5">
-                Minimum withdrawal: $10.00
+                Enter the amount you wish to withdraw
               </p>
             </div>
 
@@ -213,7 +213,6 @@ const Withdraw = () => {
                 <ul className="text-xs space-y-1 text-muted-foreground">
                   <li>• Processing time: 1-24 hours</li>
                   <li>• Network fees will be deducted from your withdrawal</li>
-                  <li>• Minimum withdrawal amount: $10.00</li>
                   <li>• Ensure your Bitcoin address is correct before submitting</li>
                 </ul>
               </div>

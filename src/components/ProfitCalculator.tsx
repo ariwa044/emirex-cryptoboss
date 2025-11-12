@@ -11,34 +11,27 @@ import {
 } from "@/components/ui/select";
 
 const ProfitCalculator = () => {
-  const [investment, setInvestment] = useState(300);
-  const [selectedPlan, setSelectedPlan] = useState("professional");
-  const [duration, setDuration] = useState(30);
+  const [investment, setInvestment] = useState(100);
+  const [selectedPlan, setSelectedPlan] = useState("standard");
 
   const plans = {
-    starter: { name: "Starter Plan", dailyRate: 1.093 },
-    professional: { name: "Professional Plan", dailyRate: 0.62 },
-    premium: { name: "Premium Plan", dailyRate: 0.3 },
-    vip: { name: "VIP Plan", dailyRate: 0.4 },
+    basic: { name: "Basic Plan", dailyRate: 5 },
+    standard: { name: "Standard Plan", dailyRate: 10 },
+    premium: { name: "Premium Plan", dailyRate: 15 },
   };
 
   const calculateProfit = () => {
     const plan = plans[selectedPlan as keyof typeof plans];
     const dailyRate = plan.dailyRate / 100;
     
-    // Compound interest formula: A = P(1 + r)^n
-    const finalAmount = investment * Math.pow(1 + dailyRate, duration);
-    const totalProfit = finalAmount - investment;
+    // Simple daily profit calculation
     const dailyProfit = (investment * dailyRate).toFixed(2);
     const monthlyProfit = (parseFloat(dailyProfit) * 30).toFixed(2);
-    const roi = ((totalProfit / investment) * 100).toFixed(1);
-
+    
     return {
       dailyProfit,
       monthlyProfit,
-      totalProfit: totalProfit.toFixed(2),
-      finalAmount: finalAmount.toFixed(2),
-      roi,
+      roi: plan.dailyRate.toString(),
     };
   };
 
@@ -74,12 +67,12 @@ const ProfitCalculator = () => {
                 <Slider
                   value={[investment]}
                   onValueChange={(value) => setInvestment(value[0])}
-                  min={300}
+                  min={100}
                   max={100000}
                   step={100}
                   className="mb-2"
                 />
-                <p className="text-sm text-muted-foreground">Minimum: $300</p>
+                <p className="text-sm text-muted-foreground">Minimum: $100</p>
               </div>
 
               {/* Trading Plan */}
@@ -90,35 +83,19 @@ const ProfitCalculator = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="starter">
-                      Starter Plan (109.3% daily)
+                    <SelectItem value="basic">
+                      Basic Plan (5% daily)
                     </SelectItem>
-                    <SelectItem value="professional">
-                      Professional Plan (0.62% daily)
+                    <SelectItem value="standard">
+                      Standard Plan (10% daily)
                     </SelectItem>
                     <SelectItem value="premium">
-                      Premium Plan (0.3% daily)
+                      Premium Plan (15% daily)
                     </SelectItem>
-                    <SelectItem value="vip">VIP Plan (0.4% daily)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Duration */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="font-semibold">Duration (Days)</label>
-                  <span className="text-xl font-bold">{duration} Days</span>
-                </div>
-                <Slider
-                  value={[duration]}
-                  onValueChange={(value) => setDuration(value[0])}
-                  min={1}
-                  max={365}
-                  step={1}
-                  className="mb-2"
-                />
-              </div>
 
               <Button variant="gradient" size="lg" className="w-full">
                 Start Trading with {plans[selectedPlan as keyof typeof plans].name}
@@ -159,28 +136,20 @@ const ProfitCalculator = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">
-                    Total Profit ({duration} days)
+                    Daily ROI Rate
                   </span>
                   <span className="font-bold text-success">
-                    +${parseFloat(results.totalProfit).toLocaleString()}
+                    {results.roi}%
                   </span>
-                </div>
-                <div className="border-t pt-3 mt-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Final Amount</span>
-                    <span className="text-2xl font-bold text-primary">
-                      ${parseFloat(results.finalAmount).toLocaleString()}
-                    </span>
-                  </div>
                 </div>
               </div>
 
               <div className="p-4 bg-success/10 rounded-lg text-center">
                 <div className="text-3xl font-bold text-success mb-1">
-                  ROI: {results.roi}%
+                  ${results.dailyProfit}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  over {duration} days
+                  Daily Earnings
                 </div>
               </div>
 
