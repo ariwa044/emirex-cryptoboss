@@ -19,6 +19,7 @@ const Auth = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [verificationStep, setVerificationStep] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -37,6 +38,16 @@ const Auth = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    // Countdown timer for resend cooldown
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => {
+        setResendCooldown(resendCooldown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +93,7 @@ const Auth = () => {
 
       setPendingEmail(email);
       setVerificationStep(true);
+      setResendCooldown(60); // 60 second cooldown
       toast({
         title: "Verification Code Sent",
         description: "Please check your email for the 6-digit verification code.",
@@ -163,6 +175,40 @@ const Auth = () => {
     setVerificationStep(false);
     setVerificationCode("");
     setPendingEmail("");
+    setResendCooldown(0);
+  };
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0) return;
+    
+    setIsLoading(true);
+
+    try {
+      const { error: functionError } = await supabase.functions.invoke(
+        "send-verification-code",
+        {
+          body: { email: pendingEmail },
+        }
+      );
+
+      if (functionError) {
+        throw functionError;
+      }
+
+      setResendCooldown(60); // 60 second cooldown
+      toast({
+        title: "Code Resent",
+        description: "A new verification code has been sent to your email.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to resend verification code",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (verificationStep) {
@@ -214,15 +260,28 @@ const Auth = () => {
               >
                 {isLoading ? "Verifying..." : "Verify & Create Account"}
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className="w-full"
-                onClick={handleBackToSignup}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Sign Up
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleResendCode}
+                  disabled={resendCooldown > 0 || isLoading}
+                >
+                  {resendCooldown > 0 
+                    ? `Resend in ${resendCooldown}s` 
+                    : "Resend Code"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1"
+                  onClick={handleBackToSignup}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              </div>
             </form>
           </CardContent>
         </Card>
