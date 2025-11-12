@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
@@ -29,6 +30,7 @@ const DemoTrade = () => {
   const [leverage, setLeverage] = useState("1");
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const [cryptoPrices, setCryptoPrices] = useState<{ [key: string]: number }>({});
 
   useEffect(() => {
     const savedBalance = localStorage.getItem("demoBalance");
@@ -39,9 +41,13 @@ const DemoTrade = () => {
 
   useEffect(() => {
     fetchPrice();
-    const interval = setInterval(fetchPrice, 30000);
+    fetchAllPrices();
+    const interval = setInterval(() => {
+      fetchPrice();
+      fetchAllPrices();
+    }, 30000);
     return () => clearInterval(interval);
-  }, [cryptocurrency]);
+  }, [cryptocurrency, trades]);
 
   const fetchPrice = async () => {
     try {
@@ -52,6 +58,28 @@ const DemoTrade = () => {
       setCurrentPrice(data[cryptocurrency]?.usd || 0);
     } catch (error) {
       console.error("Error fetching price:", error);
+    }
+  };
+
+  const fetchAllPrices = async () => {
+    try {
+      const uniqueCryptos = [...new Set(trades.map(t => t.cryptocurrency))];
+      if (uniqueCryptos.length === 0) return;
+
+      const ids = uniqueCryptos.join(',');
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`
+      );
+      const data = await response.json();
+      
+      const prices: { [key: string]: number } = {};
+      uniqueCryptos.forEach(crypto => {
+        prices[crypto] = data[crypto]?.usd || 0;
+      });
+      
+      setCryptoPrices(prices);
+    } catch (error) {
+      console.error("Error fetching all prices:", error);
     }
   };
 
@@ -95,11 +123,12 @@ const DemoTrade = () => {
   };
 
   const closeTrade = (trade: DemoTrade) => {
-    const priceChange = trade.current_price - trade.entry_price;
+    const currentTradePrice = cryptoPrices[trade.cryptocurrency] || trade.current_price;
+    const priceChange = currentTradePrice - trade.entry_price;
     const multiplier = trade.position_type === "long" ? 1 : -1;
-    const pnl = (priceChange / trade.entry_price) * trade.amount * trade.leverage * multiplier;
+    const pnl = (priceChange * multiplier * trade.amount * trade.leverage) / trade.entry_price;
     
-    const newBalance = demoBalance + trade.amount * trade.leverage + pnl;
+    const newBalance = demoBalance + trade.amount + pnl;
     const updatedTrades = trades.filter(t => t.id !== trade.id);
 
     setDemoBalance(newBalance);
@@ -200,34 +229,64 @@ const DemoTrade = () => {
         </Card>
 
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-4">Recent Trades</h2>
+          <h2 className="text-xl font-bold mb-4">Open Positions</h2>
           <div className="space-y-3">
             {trades.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No open trades</p>
             ) : (
-              trades.map((trade) => (
-                <div key={trade.id} className="p-4 border rounded-lg space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{trade.cryptocurrency.toUpperCase()}</span>
-                    <span className={trade.position_type === "long" ? "text-success" : "text-destructive"}>
-                      {trade.position_type === "long" ? <TrendingUp className="inline w-4 h-4" /> : <TrendingDown className="inline w-4 h-4" />}
-                      {" "}{trade.position_type.toUpperCase()}
-                    </span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <div>Entry: ${trade.entry_price.toLocaleString()}</div>
-                    <div>Amount: ${trade.amount} × {trade.leverage}x</div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => closeTrade(trade)}
-                    className="w-full"
-                  >
-                    Close Trade
-                  </Button>
-                </div>
-              ))
+              trades.map((trade) => {
+                const currentTradePrice = cryptoPrices[trade.cryptocurrency] || trade.entry_price;
+                const priceDiff = currentTradePrice - trade.entry_price;
+                const multiplier = trade.position_type === "long" ? 1 : -1;
+                const pnl = (priceDiff * multiplier * trade.amount * trade.leverage) / trade.entry_price;
+                const pnlPercent = (pnl / trade.amount) * 100;
+
+                return (
+                  <Card key={trade.id} className="bg-card/50">
+                    <CardContent className="pt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Badge 
+                            variant={trade.position_type === "long" ? "default" : "destructive"}
+                            className={trade.position_type === "long" ? "bg-success" : ""}
+                          >
+                            {trade.position_type.toUpperCase()}
+                          </Badge>
+                          <span className="font-medium">{trade.cryptocurrency.toUpperCase()}/USDT</span>
+                          <span className="text-xs text-muted-foreground">{trade.leverage}x</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => closeTrade(trade)}
+                        >
+                          Close
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Entry</p>
+                          <p className="font-medium">${trade.entry_price.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Current</p>
+                          <p className="font-medium">${currentTradePrice.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Amount</p>
+                          <p className="font-medium">${trade.amount.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">PNL</p>
+                          <p className={`font-medium ${pnl >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)} ({pnlPercent.toFixed(2)}%)
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })
             )}
           </div>
         </Card>
