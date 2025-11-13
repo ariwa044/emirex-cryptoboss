@@ -10,8 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, TrendingUp, TrendingDown, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ArrowUpDown, TrendingUp, TrendingDown, ArrowDownToLine, ArrowUpFromLine, Receipt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Separator } from "@/components/ui/separator";
 
 interface Trade {
   id: string;
@@ -42,6 +49,8 @@ const History = () => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchHistory = async () => {
@@ -85,6 +94,11 @@ const History = () => {
     }
   };
 
+  const handleItemClick = (item: any, itemType: 'trade' | 'transaction') => {
+    setSelectedItem({ ...item, itemType });
+    setDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -115,7 +129,11 @@ const History = () => {
                   {[...transactions.map(t => ({ ...t, type: 'transaction' })), ...trades.map(t => ({ ...t, type: 'trade' }))]
                     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                     .map((item: any) => (
-                      <div key={item.id} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                      <div 
+                        key={item.id} 
+                        className="flex items-center justify-between p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                        onClick={() => handleItemClick(item, item.type === 'transaction' ? 'transaction' : 'trade')}
+                      >
                         <div className="flex items-center gap-4">
                           <div className={`p-2 rounded-lg ${item.type === 'transaction' 
                             ? item.type === 'deposit' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'
@@ -185,7 +203,11 @@ const History = () => {
                   </TableRow>
                 ) : (
                   trades.map((trade) => (
-                    <TableRow key={trade.id}>
+                    <TableRow 
+                      key={trade.id} 
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleItemClick(trade, 'trade')}
+                    >
                       <TableCell className="font-medium">{trade.cryptocurrency}</TableCell>
                       <TableCell>
                         <Badge variant={trade.position_type === 'long' ? 'default' : 'destructive'}>
@@ -238,7 +260,11 @@ const History = () => {
                   </TableRow>
                 ) : (
                   transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
+                    <TableRow 
+                      key={transaction.id}
+                      className="cursor-pointer hover:bg-muted/50"
+                      onClick={() => handleItemClick(transaction, 'transaction')}
+                    >
                       <TableCell>
                         <Badge variant={transaction.type === 'deposit' ? 'default' : 'secondary'}>
                           {transaction.type}
@@ -263,6 +289,121 @@ const History = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5" />
+              Transaction Receipt
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedItem && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 p-4 rounded-lg space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Type</span>
+                  <Badge variant={selectedItem.itemType === 'trade' ? 'default' : 'secondary'}>
+                    {selectedItem.itemType === 'trade' ? 'Trade' : selectedItem.type}
+                  </Badge>
+                </div>
+                
+                <Separator />
+                
+                {selectedItem.itemType === 'trade' ? (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Asset</span>
+                      <span className="font-semibold">{selectedItem.cryptocurrency}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Position</span>
+                      <Badge variant={selectedItem.position_type === 'long' ? 'default' : 'destructive'}>
+                        {selectedItem.position_type}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Entry Price</span>
+                      <span className="font-semibold">${selectedItem.entry_price?.toLocaleString() || '0'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Current Price</span>
+                      <span className="font-semibold">${selectedItem.current_price?.toLocaleString() || '0'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Amount</span>
+                      <span className="font-semibold">${selectedItem.amount?.toFixed(2) || '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Leverage</span>
+                      <span className="font-semibold">{selectedItem.leverage}x</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">PNL</span>
+                      <span className={`font-semibold ${(selectedItem.pnl ?? 0) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+                        ${(selectedItem.pnl ?? 0).toFixed(2)}
+                      </span>
+                    </div>
+                    {selectedItem.closed_at && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Closed At</span>
+                        <span className="text-sm">{new Date(selectedItem.closed_at).toLocaleString()}</span>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Amount</span>
+                      <span className="font-semibold text-lg">${selectedItem.amount?.toFixed(2) || '0.00'}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Currency</span>
+                      <span className="font-semibold">{selectedItem.currency}</span>
+                    </div>
+                    {selectedItem.btc_address && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">BTC Address</span>
+                        <span className="text-xs font-mono truncate max-w-[200px]">{selectedItem.btc_address}</span>
+                      </div>
+                    )}
+                    {selectedItem.transaction_hash && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Transaction Hash</span>
+                        <span className="text-xs font-mono truncate max-w-[200px]">{selectedItem.transaction_hash}</span>
+                      </div>
+                    )}
+                    {selectedItem.narration && (
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm text-muted-foreground">Narration</span>
+                        <span className="text-sm">{selectedItem.narration}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                <Separator />
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Badge className={getStatusColor(selectedItem.status)}>
+                    {selectedItem.status}
+                  </Badge>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Transaction ID</span>
+                  <span className="text-xs font-mono">{selectedItem.id.slice(0, 8)}...</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Date</span>
+                  <span className="text-sm">{new Date(selectedItem.created_at).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
