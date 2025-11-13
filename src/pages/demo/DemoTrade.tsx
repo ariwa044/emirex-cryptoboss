@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface DemoTrade {
   id: string;
@@ -31,6 +32,8 @@ const DemoTrade = () => {
   const [currentPrice, setCurrentPrice] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [cryptoPrices, setCryptoPrices] = useState<{ [key: string]: number }>({});
+  const [chartData, setChartData] = useState<{ time: string; price: number }[]>([]);
+  const [priceChange24h, setPriceChange24h] = useState<number>(0);
 
   useEffect(() => {
     const savedBalance = localStorage.getItem("demoBalance");
@@ -42,9 +45,11 @@ const DemoTrade = () => {
   useEffect(() => {
     fetchPrice();
     fetchAllPrices();
+    fetchChartData();
     const interval = setInterval(() => {
       fetchPrice();
       fetchAllPrices();
+      fetchChartData();
     }, 30000);
     return () => clearInterval(interval);
   }, [cryptocurrency, trades]);
@@ -52,12 +57,29 @@ const DemoTrade = () => {
   const fetchPrice = async () => {
     try {
       const response = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${cryptocurrency}&vs_currencies=usd`
+        `https://api.coingecko.com/api/v3/simple/price?ids=${cryptocurrency}&vs_currencies=usd&include_24hr_change=true`
       );
       const data = await response.json();
       setCurrentPrice(data[cryptocurrency]?.usd || 0);
+      setPriceChange24h(data[cryptocurrency]?.usd_24h_change || 0);
     } catch (error) {
       console.error("Error fetching price:", error);
+    }
+  };
+
+  const fetchChartData = async () => {
+    try {
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/coins/${cryptocurrency}/market_chart?vs_currency=usd&days=1`
+      );
+      const data = await response.json();
+      const prices = data.prices.map((price: [number, number]) => ({
+        time: new Date(price[0]).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        price: price[1]
+      }));
+      setChartData(prices);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
     }
   };
 
@@ -162,6 +184,55 @@ const DemoTrade = () => {
         <p className="text-sm md:text-base text-muted-foreground">Practice trading with virtual funds - Learn the platform risk-free</p>
         <p className="text-base md:text-lg font-semibold mt-2">Demo Balance: ${demoBalance.toLocaleString()}</p>
       </div>
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold">Bitcoin Live Price Chart</h3>
+            <div className="flex items-center gap-2">
+              <span className="text-2xl font-bold">${currentPrice.toLocaleString()}</span>
+              <Badge variant={priceChange24h >= 0 ? "default" : "destructive"} className="flex items-center gap-1">
+                {priceChange24h >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                {Math.abs(priceChange24h).toFixed(2)}%
+              </Badge>
+            </div>
+          </div>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="time" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                />
+                <YAxis 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                  domain={['dataMin - 100', 'dataMax + 100']}
+                  tickFormatter={(value) => `$${value.toLocaleString()}`}
+                />
+                <Tooltip 
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                    color: 'hsl(var(--foreground))'
+                  }}
+                  formatter={(value: number) => [`$${value.toLocaleString()}`, 'Price']}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="price" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </Card>
 
       <div className="grid gap-4 md:gap-6 lg:grid-cols-2">
         <Card className="p-4 md:p-6">
