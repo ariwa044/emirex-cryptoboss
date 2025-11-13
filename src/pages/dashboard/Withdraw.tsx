@@ -7,14 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Wallet, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const Withdraw = () => {
+  const [withdrawalMethod, setWithdrawalMethod] = useState("btc");
   const [amount, setAmount] = useState("");
   const [btcAddress, setBtcAddress] = useState("");
   const [narration, setNarration] = useState("");
   const [loading, setLoading] = useState(false);
   const [balance, setBalance] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
+  
+  // Bank details
+  const [accountName, setAccountName] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bankName, setBankName] = useState("");
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -76,9 +83,16 @@ const Withdraw = () => {
       return;
     }
 
-    if (!btcAddress || btcAddress.length < 26) {
-      toast.error("Please enter a valid Bitcoin address");
-      return;
+    if (withdrawalMethod === "btc") {
+      if (!btcAddress || btcAddress.length < 26) {
+        toast.error("Please enter a valid Bitcoin address");
+        return;
+      }
+    } else if (withdrawalMethod === "bank") {
+      if (!accountName || !accountNumber || !bankName) {
+        toast.error("Please fill in all bank details");
+        return;
+      }
     }
 
     if (parseFloat(amount) > balance) {
@@ -94,18 +108,32 @@ const Withdraw = () => {
     setLoading(true);
 
     try {
+      const transactionData: any = {
+        user_id: userId,
+        type: "withdraw",
+        amount: parseFloat(amount),
+        status: "pending",
+      };
+
+      if (withdrawalMethod === "btc") {
+        transactionData.currency = "BTC";
+        transactionData.btc_address = btcAddress;
+        transactionData.narration = narration || `Withdrawal of $${amount} to ${btcAddress.substring(0, 10)}...`;
+      } else {
+        transactionData.currency = "BANK";
+        transactionData.narration = narration || `Bank withdrawal of $${amount} to ${accountName} - ${bankName}`;
+        // Store bank details in narration field for now
+        transactionData.btc_address = JSON.stringify({
+          accountName,
+          accountNumber,
+          bankName
+        });
+      }
+
       // Insert withdrawal transaction
       const { error: transactionError } = await supabase
         .from("transactions")
-        .insert({
-          user_id: userId,
-          type: "withdraw",
-          amount: parseFloat(amount),
-          currency: "BTC",
-          status: "pending",
-          btc_address: btcAddress,
-          narration: narration || `Withdrawal of ${amount} BTC to ${btcAddress.substring(0, 10)}...`
-        });
+        .insert(transactionData);
 
       if (transactionError) throw transactionError;
 
@@ -121,6 +149,9 @@ const Withdraw = () => {
       setAmount("");
       setBtcAddress("");
       setNarration("");
+      setAccountName("");
+      setAccountNumber("");
+      setBankName("");
       setBalance(balance - parseFloat(amount));
     } catch (error: any) {
       toast.error(error.message || "Failed to submit withdrawal request");
@@ -152,18 +183,68 @@ const Withdraw = () => {
 
           <div className="space-y-4">
             <div>
-              <Label htmlFor="btc-address">Bitcoin Address</Label>
-              <Input
-                id="btc-address"
-                placeholder="Enter your BTC address (e.g., bc1q...)"
-                value={btcAddress}
-                onChange={(e) => setBtcAddress(e.target.value)}
-                className="mt-1.5 font-mono text-sm"
-              />
-              <p className="text-xs text-muted-foreground mt-1.5">
-                Double-check your address. Transactions cannot be reversed.
-              </p>
+              <Label htmlFor="withdrawal-method">Withdrawal Method</Label>
+              <Select value={withdrawalMethod} onValueChange={setWithdrawalMethod}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="btc">Bitcoin (BTC)</SelectItem>
+                  <SelectItem value="bank">Bank Transfer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {withdrawalMethod === "btc" ? (
+              <div>
+                <Label htmlFor="btc-address">Bitcoin Address</Label>
+                <Input
+                  id="btc-address"
+                  placeholder="Enter your BTC address (e.g., bc1q...)"
+                  value={btcAddress}
+                  onChange={(e) => setBtcAddress(e.target.value)}
+                  className="mt-1.5 font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Double-check your address. Transactions cannot be reversed.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <Label htmlFor="account-name">Account Name</Label>
+                  <Input
+                    id="account-name"
+                    placeholder="Enter account holder name"
+                    value={accountName}
+                    onChange={(e) => setAccountName(e.target.value)}
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="account-number">Account Number</Label>
+                  <Input
+                    id="account-number"
+                    placeholder="Enter account number"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    className="mt-1.5"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="bank-name">Bank Name</Label>
+                  <Input
+                    id="bank-name"
+                    placeholder="Enter bank name"
+                    value={bankName}
+                    onChange={(e) => setBankName(e.target.value)}
+                    className="mt-1.5"
+                  />
+                </div>
+              </>
+            )}
 
             <div>
               <Label htmlFor="withdraw-amount">Amount (USD)</Label>
@@ -195,7 +276,7 @@ const Withdraw = () => {
 
             <Button 
               onClick={handleWithdraw} 
-              disabled={loading || !amount || !btcAddress}
+              disabled={loading || !amount || (withdrawalMethod === "btc" ? !btcAddress : (!accountName || !accountNumber || !bankName))}
               className="w-full"
               size="lg"
             >
@@ -212,8 +293,17 @@ const Withdraw = () => {
                 </h4>
                 <ul className="text-xs space-y-1 text-muted-foreground">
                   <li>• Processing time: 1-24 hours</li>
-                  <li>• Network fees will be deducted from your withdrawal</li>
-                  <li>• Ensure your Bitcoin address is correct before submitting</li>
+                  {withdrawalMethod === "btc" ? (
+                    <>
+                      <li>• Network fees will be deducted from your withdrawal</li>
+                      <li>• Ensure your Bitcoin address is correct before submitting</li>
+                    </>
+                  ) : (
+                    <>
+                      <li>• Bank transfers may take 1-3 business days</li>
+                      <li>• Ensure your bank details are correct before submitting</li>
+                    </>
+                  )}
                 </ul>
               </div>
             </div>

@@ -1,16 +1,35 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, Wallet, DollarSign, Check, X } from "lucide-react";
+import { TrendingUp, Wallet, DollarSign, Check, X, Activity } from "lucide-react";
 
 const DemoOverview = () => {
   const [demoBalance, setDemoBalance] = useState(100000);
+  const [btcPrice, setBtcPrice] = useState<number>(0);
+  const [priceChange, setPriceChange] = useState<number>(0);
 
   useEffect(() => {
     const savedBalance = localStorage.getItem("demoBalance");
     if (savedBalance) {
       setDemoBalance(parseFloat(savedBalance));
     }
+    
+    fetchBitcoinPrice();
+    const interval = setInterval(fetchBitcoinPrice, 30000); // Update every 30 seconds
+    return () => clearInterval(interval);
   }, []);
+
+  const fetchBitcoinPrice = async () => {
+    try {
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true'
+      );
+      const data = await response.json();
+      setBtcPrice(data.bitcoin?.usd || 0);
+      setPriceChange(data.bitcoin?.usd_24h_change || 0);
+    } catch (error) {
+      console.error("Error fetching Bitcoin price:", error);
+    }
+  };
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in">
