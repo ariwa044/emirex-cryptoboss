@@ -103,10 +103,10 @@ const Dashboard = () => {
         <DashboardSidebar />
         
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b border-border/50 bg-card/40 backdrop-blur-xl flex items-center justify-between px-6 shadow-lg">
+          <header className="h-16 border-b border-border/50 bg-card/40 backdrop-blur-xl flex items-center justify-between px-4 md:px-6 shadow-lg">
             <div className="flex items-center gap-4">
-              <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
-              <div>
+              <SidebarTrigger className="hover:bg-primary/10 transition-colors text-foreground p-2 rounded-md border border-border/50 bg-background/50" />
+              <div className="hidden sm:block">
                 <h1 className="text-lg font-semibold bg-gradient-primary bg-clip-text text-transparent">Welcome back, {getUsername()}</h1>
                 <p className="text-sm text-muted-foreground">{profile?.role || "Crypto Trader"}</p>
               </div>

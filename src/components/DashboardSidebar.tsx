@@ -25,9 +25,9 @@ export function DashboardSidebar() {
   const { open } = useSidebar();
 
   return (
-    <Sidebar className="border-r border-border bg-gradient-to-b from-primary/10 to-background">
-      <SidebarContent>
-        <div className="p-6">
+    <Sidebar className="border-r border-border bg-background">
+      <SidebarContent className="bg-background">
+        <div className="p-6 border-b border-border">
           <h2 className="text-xl font-bold text-foreground">
             Fintrix Trade
           </h2>
@@ -35,7 +35,7 @@ export function DashboardSidebar() {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-foreground/70">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -44,10 +44,10 @@ export function DashboardSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      className="hover:bg-muted/50 transition-colors"
+                      className="hover:bg-muted/50 transition-colors text-foreground"
                       activeClassName="bg-primary/20 text-primary font-medium"
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon className="h-5 w-5" />
                       {open && <span>{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
