@@ -26,18 +26,18 @@ export function DashboardSidebar() {
 
   return (
     <Sidebar 
-      className="border-r border-border bg-background"
+      className="border-r border-primary/20 bg-primary"
     >
-      <SidebarContent className="bg-background">
-        <div className="p-6 border-b border-border bg-card">
-          <h2 className="text-xl font-bold text-foreground">
+      <SidebarContent className="bg-primary">
+        <div className="p-6 border-b border-primary-foreground/10 bg-primary">
+          <h2 className="text-xl font-bold text-primary-foreground">
             Fintrix Trade
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Crypto Trading Platform</p>
+          <p className="text-sm text-primary-foreground/80 mt-1">Crypto Trading Platform</p>
         </div>
 
-        <SidebarGroup className="bg-background">
-          <SidebarGroupLabel className="text-foreground font-semibold px-4 py-3">Navigation</SidebarGroupLabel>
+        <SidebarGroup className="bg-primary">
+          <SidebarGroupLabel className="text-primary-foreground/90 font-semibold px-4 py-3">Navigation</SidebarGroupLabel>
           <SidebarGroupContent className="px-2">
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -46,8 +46,8 @@ export function DashboardSidebar() {
                     <NavLink
                       to={item.url}
                       end={item.url === "/dashboard"}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/80 transition-colors text-foreground font-medium"
-                      activeClassName="bg-primary/20 text-primary font-semibold"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary-foreground/10 transition-colors text-primary-foreground font-medium"
+                      activeClassName="bg-primary-foreground/20 text-primary-foreground font-semibold"
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {open && <span className="text-base">{item.title}</span>}
