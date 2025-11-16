@@ -164,7 +164,7 @@ const History = () => {
                             {item.status}
                           </Badge>
                           <p className="text-sm font-medium mt-1">
-                            {item.type === 'transaction' ? `$${item.amount || 0}` : `$${item.amount || 0} @ $${item.entry_price || 0}`}
+                            {item.type === 'transaction' ? `$${(item.amount || 0).toFixed(2)}` : `$${(item.amount || 0).toFixed(2)} @ $${(item.entry_price || 0).toLocaleString()}`}
                           </p>
                         </div>
                       </div>
