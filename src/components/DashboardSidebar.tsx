@@ -28,9 +28,8 @@ export function DashboardSidebar() {
     <Sidebar className="border-r border-border bg-gradient-to-b from-primary/10 to-background">
       <SidebarContent>
         <div className="p-6">
-          <h2 className="text-xl font-bold">
-            <span className="text-primary">PrimeWave</span>{" "}
-            <span className="text-foreground">Global</span>
+          <h2 className="text-xl font-bold text-foreground">
+            Fintrix Trade
           </h2>
           <p className="text-sm text-muted-foreground mt-1">Crypto Trading Platform</p>
         </div>

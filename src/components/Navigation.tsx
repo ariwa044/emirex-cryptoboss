@@ -1,18 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Waves } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import fintrixLogo from "@/assets/fintrix-logo.jpg";
 const Navigation = () => {
   const navigate = useNavigate();
   return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Waves className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">
-              <span className="text-primary">PrimeWave</span>{" "}
-              <span className="text-foreground">Global</span>
+            <img src={fintrixLogo} alt="Fintrix Trade" className="w-10 h-10 rounded-lg object-contain" />
+            <span className="text-xl font-bold text-foreground">
+              Fintrix Trade
             </span>
           </div>
 

@@ -6,6 +6,7 @@ import FeaturesSection from "@/components/FeaturesSection";
 import PlansSection from "@/components/PlansSection";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import ChatWidget from "@/components/ChatWidget";
+import DownloadPrompt from "@/components/DownloadPrompt";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
         <ProfitCalculator />
       </main>
       <ChatWidget />
+      <DownloadPrompt />
     </div>
   );
 };
