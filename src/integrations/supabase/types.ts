@@ -87,14 +87,16 @@ export type Database = {
         Row: {
           btc_balance: number | null
           btc_wallet_address: string | null
+          country: string | null
           created_at: string
           eth_balance: number | null
           eth_wallet_address: string | null
+          full_name: string | null
           id: string
-          kyc_status: string | null
           ltc_balance: number | null
           ltc_wallet_address: string | null
           profit_balance: number | null
+          roi_balance: number | null
           role: string | null
           updated_at: string
           usd_balance: number | null
@@ -104,14 +106,16 @@ export type Database = {
         Insert: {
           btc_balance?: number | null
           btc_wallet_address?: string | null
+          country?: string | null
           created_at?: string
           eth_balance?: number | null
           eth_wallet_address?: string | null
+          full_name?: string | null
           id?: string
-          kyc_status?: string | null
           ltc_balance?: number | null
           ltc_wallet_address?: string | null
           profit_balance?: number | null
+          roi_balance?: number | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null
@@ -121,14 +125,16 @@ export type Database = {
         Update: {
           btc_balance?: number | null
           btc_wallet_address?: string | null
+          country?: string | null
           created_at?: string
           eth_balance?: number | null
           eth_wallet_address?: string | null
+          full_name?: string | null
           id?: string
-          kyc_status?: string | null
           ltc_balance?: number | null
           ltc_wallet_address?: string | null
           profit_balance?: number | null
+          roi_balance?: number | null
           role?: string | null
           updated_at?: string
           usd_balance?: number | null

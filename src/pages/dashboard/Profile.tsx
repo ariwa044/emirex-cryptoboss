@@ -8,13 +8,15 @@ interface ProfileData {
   email: string;
   username: string;
   role: string;
-  kyc_status: string;
+  full_name: string;
+  country: string;
   created_at: string;
   usd_balance: number;
   btc_balance: number;
   eth_balance: number;
   ltc_balance: number;
   profit_balance: number;
+  roi_balance: number;
   btc_wallet_address: string | null;
   eth_wallet_address: string | null;
   ltc_wallet_address: string | null;
@@ -40,13 +42,15 @@ const Profile = () => {
           email: user.email || "",
           username: profileData.username || "",
           role: profileData.role || "Crypto Trader",
-          kyc_status: profileData.kyc_status || "pending",
+          full_name: profileData.full_name || "",
+          country: profileData.country || "",
           created_at: user.created_at || "",
           usd_balance: profileData.usd_balance || 0,
           btc_balance: profileData.btc_balance || 0,
           eth_balance: profileData.eth_balance || 0,
           ltc_balance: profileData.ltc_balance || 0,
           profit_balance: profileData.profit_balance || 0,
+          roi_balance: profileData.roi_balance || 0,
           btc_wallet_address: profileData.btc_wallet_address,
           eth_wallet_address: profileData.eth_wallet_address,
           ltc_wallet_address: profileData.ltc_wallet_address,
@@ -58,18 +62,6 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  const getKycStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-500/20 text-green-600 dark:text-green-400";
-      case "pending":
-        return "bg-amber-500/20 text-amber-600 dark:text-amber-400";
-      case "rejected":
-        return "bg-red-500/20 text-red-600 dark:text-red-400";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
 
   if (loading) {
     return (
@@ -138,15 +130,6 @@ const Profile = () => {
                     day: 'numeric'
                   })}
                 </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <Shield className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm text-muted-foreground">KYC Status</p>
-                <Badge className={getKycStatusColor(profile.kyc_status)}>
-                  {profile.kyc_status}
-                </Badge>
               </div>
             </div>
           </CardContent>
