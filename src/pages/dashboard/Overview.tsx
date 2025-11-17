@@ -8,6 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import WalletDisplay from "@/components/WalletDisplay";
+import InvestmentDialog from "@/components/InvestmentDialog";
+import ActiveInvestments from "@/components/ActiveInvestments";
 
 const Overview = () => {
   const navigate = useNavigate();
@@ -18,6 +20,11 @@ const Overview = () => {
     ltc: 0,
   });
   const [activeTrades, setActiveTrades] = useState<any[]>([]);
+  const [investments, setInvestments] = useState<any[]>([]);
+  const [investmentDialog, setInvestmentDialog] = useState<{ open: boolean; plan: any | null }>({
+    open: false,
+    plan: null
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -37,6 +44,14 @@ const Overview = () => {
           .eq("user_id", user.id)
           .eq("status", "open");
         setActiveTrades(tradesData || []);
+
+        // Fetch active investments
+        const { data: investmentsData } = await supabase
+          .from("investments")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("status", "active");
+        setInvestments(investmentsData || []);
       }
     };
 
@@ -125,7 +140,7 @@ const Overview = () => {
   const totalPNL = calculateTotalPNL();
   const totalROI = calculateTotalROI();
 
-  const handleInvest = async (plan: any) => {
+  const handleInvest = (plan: any) => {
     const currentBalance = profile?.usd_balance || 0;
     
     if (currentBalance < 100) {
@@ -148,14 +163,20 @@ const Overview = () => {
       return;
     }
 
+    setInvestmentDialog({ open: true, plan });
+  };
+
+  const confirmInvestment = async (days: number) => {
+    const plan = investmentDialog.plan;
+    const currentBalance = profile?.usd_balance || 0;
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const dailyRate = parseFloat(plan.dailyRate.replace('%', '')) / 100;
-      const durationDays = parseInt(plan.duration.split(' ')[0]);
       const maturityDate = new Date();
-      maturityDate.setDate(maturityDate.getDate() + durationDays);
+      maturityDate.setDate(maturityDate.getDate() + days);
 
       // Create investment record
       const { error: investError } = await supabase
@@ -165,7 +186,7 @@ const Overview = () => {
           plan_name: plan.name,
           amount: currentBalance,
           daily_rate: dailyRate,
-          duration_days: durationDays,
+          duration_days: days,
           maturity_date: maturityDate.toISOString()
         });
 
@@ -179,7 +200,16 @@ const Overview = () => {
 
       if (updateError) throw updateError;
 
-      toast.success(`Successfully invested $${currentBalance.toFixed(2)} in ${plan.name}!`);
+      // Refresh investments
+      const { data: investmentsData } = await supabase
+        .from("investments")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "active");
+      setInvestments(investmentsData || []);
+
+      setInvestmentDialog({ open: false, plan: null });
+      toast.success(`Successfully invested $${currentBalance.toFixed(2)} in ${plan.name} for ${days} days!`);
     } catch (error) {
       console.error('Investment error:', error);
       toast.error("Failed to process investment. Please try again.");
@@ -418,8 +448,20 @@ const Overview = () => {
         </div>
       </div>
 
+      {/* Active Investments */}
+      <ActiveInvestments investments={investments} />
+
       {/* Profit Calculator */}
       <ProfitCalculator />
+
+      {/* Investment Dialog */}
+      <InvestmentDialog
+        open={investmentDialog.open}
+        onOpenChange={(open) => setInvestmentDialog({ open, plan: null })}
+        plan={investmentDialog.plan}
+        balance={profile?.usd_balance || 0}
+        onConfirm={confirmInvestment}
+      />
     </div>
   );
 };
