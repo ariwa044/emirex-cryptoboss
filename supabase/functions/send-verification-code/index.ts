@@ -60,19 +60,28 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send email with verification code using SMTP
     console.log("Attempting to send email via SMTP...");
-    console.log("SMTP Host:", Deno.env.get("SMTP_HOST") || "smtp.hostinger.com");
-    console.log("SMTP Port:", Deno.env.get("SMTP_PORT") || "587");
-    console.log("SMTP User:", Deno.env.get("SMTP_USER") || "support@fintrixtrade.online");
-    
+    const host = Deno.env.get("SMTP_HOST") || "smtp.hostinger.com";
+    const port = Number(Deno.env.get("SMTP_PORT")) || 587;
+    const user = Deno.env.get("SMTP_USER") || "support@fintrixtrade.online";
+    const pass = Deno.env.get("SMTP_PASSWORD") || "";
+    const useImplicitTLS = port === 465; // 465 = implicit SSL, 587 = STARTTLS
+    console.log("SMTP Host:", host);
+    console.log("SMTP Port:", String(port));
+    console.log("SMTP User:", user);
+
     const smtpClient = new SMTPClient({
       connection: {
-        hostname: Deno.env.get("SMTP_HOST") || "smtp.hostinger.com",
-        port: Number(Deno.env.get("SMTP_PORT")) || 587,
-        tls: true,
+        hostname: host,
+        port,
+        tls: useImplicitTLS,
         auth: {
-          username: Deno.env.get("SMTP_USER") || "support@fintrixtrade.online",
-          password: Deno.env.get("SMTP_PASSWORD") || "",
+          username: user,
+          password: pass,
         },
+      },
+      debug: {
+        // do not allow unsecure auth
+        allowUnsecure: false,
       },
     });
 
