@@ -59,13 +59,18 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Send email with verification code using SMTP
+    console.log("Attempting to send email via SMTP...");
+    console.log("SMTP Host:", Deno.env.get("SMTP_HOST") || "smtp.hostinger.com");
+    console.log("SMTP Port:", Deno.env.get("SMTP_PORT") || "587");
+    console.log("SMTP User:", Deno.env.get("SMTP_USER") || "support@fintrixtrade.online");
+    
     const smtpClient = new SMTPClient({
       connection: {
         hostname: Deno.env.get("SMTP_HOST") || "smtp.hostinger.com",
-        port: Number(Deno.env.get("SMTP_PORT")) || 465,
+        port: Number(Deno.env.get("SMTP_PORT")) || 587,
         tls: true,
         auth: {
-          username: Deno.env.get("SMTP_USER") || "",
+          username: Deno.env.get("SMTP_USER") || "support@fintrixtrade.online",
           password: Deno.env.get("SMTP_PASSWORD") || "",
         },
       },
