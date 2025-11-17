@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,24 +58,38 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Send email with verification code
-    const emailResponse = await resend.emails.send({
-      from: "FinTrix Trade <onboarding@resend.dev>",
-      to: [email],
-      subject: "Your Verification Code",
+    // Send email with verification code using SMTP
+    const smtpClient = new SMTPClient({
+      connection: {
+        hostname: Deno.env.get("SMTP_HOST") || "smtp.hostinger.com",
+        port: Number(Deno.env.get("SMTP_PORT")) || 465,
+        tls: true,
+        auth: {
+          username: Deno.env.get("SMTP_USER") || "",
+          password: Deno.env.get("SMTP_PASSWORD") || "",
+        },
+      },
+    });
+
+    await smtpClient.send({
+      from: Deno.env.get("SMTP_USER") || "support@fintrixtrade.online",
+      to: email,
+      subject: "Your Fintrix Trade Verification Code",
+      content: "auto",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">Welcome to FinTrix Trade!</h1>
+          <h1 style="color: #333;">Welcome to Fintrix Trade!</h1>
           <p>Your verification code is:</p>
           <h2 style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; letter-spacing: 5px;">${code}</h2>
           <p>This code will expire in <strong>30 minutes</strong>.</p>
           <p>If you didn't request this code, please ignore this email.</p>
-          <p>Best regards,<br>The FinTrix Trade Team</p>
+          <p>Best regards,<br>The Fintrix Trade Team</p>
         </div>
       `,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    await smtpClient.close();
+    console.log("Email sent successfully via SMTP");
 
     return new Response(
       JSON.stringify({ success: true, message: "Verification code sent" }),
