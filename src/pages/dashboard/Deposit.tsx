@@ -7,6 +7,7 @@ import { Copy, CheckCircle2, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CryptoConverter from "@/components/CryptoConverter";
 
 const Deposit = () => {
   const [amount, setAmount] = useState("");
@@ -19,11 +20,30 @@ const Deposit = () => {
     ltc: ""
   });
   const [selectedCrypto, setSelectedCrypto] = useState("BTC");
+  const [cryptoBalances, setCryptoBalances] = useState({ btc: 0, eth: 0, ltc: 0 });
+  const [cryptoPrices, setCryptoPrices] = useState({ btc: 0, eth: 0, ltc: 0 });
 
   useEffect(() => {
     const fetchData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUserId(user?.id || null);
+
+      // Fetch user balances
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("btc_balance, eth_balance, ltc_balance")
+          .eq("user_id", user.id)
+          .single();
+
+        if (profile) {
+          setCryptoBalances({
+            btc: profile.btc_balance || 0,
+            eth: profile.eth_balance || 0,
+            ltc: profile.ltc_balance || 0,
+          });
+        }
+      }
 
       // Fetch deposit addresses from website settings
       const { data: settingsData } = await supabase
@@ -49,6 +69,21 @@ const Deposit = () => {
         });
         
         setWalletAddresses(addresses);
+      }
+
+      // Fetch crypto prices
+      try {
+        const response = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,litecoin&vs_currencies=usd"
+        );
+        const data = await response.json();
+        setCryptoPrices({
+          btc: data.bitcoin?.usd || 0,
+          eth: data.ethereum?.usd || 0,
+          ltc: data.litecoin?.usd || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching crypto prices:", error);
       }
     };
     fetchData();
@@ -114,8 +149,46 @@ const Deposit = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold">Deposit Cryptocurrency</h1>
-        <p className="text-muted-foreground mt-2">Fund your account with crypto</p>
+        <h1 className="text-3xl font-bold">Deposit & Convert</h1>
+        <p className="text-muted-foreground mt-2">Fund your account or convert your crypto to USDT</p>
+      </div>
+
+      {/* Crypto Converter Section */}
+      <CryptoConverter
+        balances={cryptoBalances}
+        prices={cryptoPrices}
+        onConversionComplete={() => {
+          // Refresh balances after conversion
+          const fetchBalances = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("btc_balance, eth_balance, ltc_balance")
+                .eq("user_id", user.id)
+                .single();
+
+              if (profile) {
+                setCryptoBalances({
+                  btc: profile.btc_balance || 0,
+                  eth: profile.eth_balance || 0,
+                  ltc: profile.ltc_balance || 0,
+                });
+              }
+            }
+          };
+          fetchBalances();
+        }}
+      />
+
+      {/* Divider */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or Deposit New Crypto</span>
+        </div>
       </div>
 
       <Card className="p-6 bg-gradient-to-br from-primary/5 to-background border-primary/20">
