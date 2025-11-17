@@ -23,6 +23,7 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
     eth_balance: user?.eth_balance || 0,
     ltc_balance: user?.ltc_balance || 0,
     profit_balance: user?.profit_balance || 0,
+    roi_balance: user?.roi_balance || 0,
     btc_wallet_address: user?.btc_wallet_address || "",
     eth_wallet_address: user?.eth_wallet_address || "",
     ltc_wallet_address: user?.ltc_wallet_address || "",
@@ -30,6 +31,7 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
   const [fundAmount, setFundAmount] = useState("");
   const [fundCurrency, setFundCurrency] = useState("usd");
   const [profitAmount, setProfitAmount] = useState("");
+  const [roiAmount, setRoiAmount] = useState("");
 
   const handleAddFunds = () => {
     const amount = parseFloat(fundAmount);
@@ -101,6 +103,39 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
     toast.success(`Subtracted $${amount.toFixed(2)} from profit`);
   };
 
+  const handleAddRoi = () => {
+    const amount = parseFloat(roiAmount);
+    if (!amount || isNaN(amount)) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      roi_balance: parseFloat(String(prev.roi_balance)) + amount
+    }));
+    setRoiAmount("");
+    toast.success(`Added $${amount.toFixed(2)} to ROI`);
+  };
+
+  const handleSubtractRoi = () => {
+    const amount = parseFloat(roiAmount);
+    if (!amount || isNaN(amount)) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    const newBalance = parseFloat(String(formData.roi_balance)) - amount;
+    if (newBalance < 0) {
+      toast.error("Insufficient ROI balance");
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      roi_balance: newBalance
+    }));
+    setRoiAmount("");
+    toast.success(`Subtracted $${amount.toFixed(2)} from ROI`);
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
@@ -112,6 +147,7 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
           eth_balance: formData.eth_balance,
           ltc_balance: formData.ltc_balance,
           profit_balance: formData.profit_balance,
+          roi_balance: formData.roi_balance,
           btc_wallet_address: formData.btc_wallet_address.trim() || null,
           eth_wallet_address: formData.eth_wallet_address.trim() || null,
           ltc_wallet_address: formData.ltc_wallet_address.trim() || null,
@@ -224,6 +260,34 @@ export const EditUserDialog = ({ user, open, onOpenChange, onSuccess }: EditUser
                 Add
               </Button>
               <Button onClick={handleSubtractProfit} variant="destructive" size="sm">
+                Subtract
+              </Button>
+            </div>
+          </div>
+
+          {/* ROI Management */}
+          <div className="space-y-2">
+            <Label>Current ROI Balance</Label>
+            <div className="text-2xl font-bold text-blue-500">
+              ${parseFloat(String(formData.roi_balance)).toFixed(2)}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="roiAmount">Add/Subtract ROI</Label>
+            <div className="flex gap-2">
+              <Input
+                id="roiAmount"
+                type="number"
+                step="0.01"
+                placeholder="Enter amount"
+                value={roiAmount}
+                onChange={(e) => setRoiAmount(e.target.value)}
+              />
+              <Button onClick={handleAddRoi} variant="default" size="sm">
+                Add
+              </Button>
+              <Button onClick={handleSubtractRoi} variant="destructive" size="sm">
                 Subtract
               </Button>
             </div>

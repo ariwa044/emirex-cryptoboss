@@ -6,16 +6,18 @@ interface WalletDisplayProps {
   btcBalance: number;
   ethBalance: number;
   ltcBalance: number;
+  profitBalance: number;
+  roiBalance: number;
   btcPrice: number;
   ethPrice: number;
   ltcPrice: number;
 }
 
-const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPrice, ethPrice, ltcPrice }: WalletDisplayProps) => {
+const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, profitBalance, roiBalance, btcPrice, ethPrice, ltcPrice }: WalletDisplayProps) => {
   const btcValue = btcBalance * btcPrice;
   const ethValue = ethBalance * ethPrice;
   const ltcValue = ltcBalance * ltcPrice;
-  const totalValue = usdBalance + btcValue + ethValue + ltcValue;
+  const totalValue = usdBalance + btcValue + ethValue + ltcValue + profitBalance + roiBalance;
 
   return (
     <div className="mb-8">
@@ -24,7 +26,7 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
         <p className="text-muted-foreground">Total Portfolio Value: ${totalValue.toFixed(2)}</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
         <Card className="p-6 bg-gradient-to-br from-blue-500/20 to-blue-600/20 border-blue-500/30">
           <div className="flex items-center justify-between mb-4">
             <span className="text-foreground font-medium">USD Balance</span>
@@ -35,6 +37,32 @@ const WalletDisplay = ({ usdBalance, btcBalance, ethBalance, ltcBalance, btcPric
               ${usdBalance.toFixed(2)}
             </div>
             <p className="text-sm text-muted-foreground">Available USD</p>
+          </div>
+        </Card>
+
+        <Card className="p-6 bg-gradient-to-br from-green-500/20 to-green-600/20 border-green-500/30">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-foreground font-medium">Profit Balance</span>
+            <DollarSign className="h-5 w-5 text-green-400" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-foreground break-words">
+              ${profitBalance.toFixed(2)}
+            </div>
+            <p className="text-sm text-muted-foreground">Total Profit</p>
+          </div>
+        </Card>
+
+        <Card className="p-6 bg-gradient-to-br from-cyan-500/20 to-cyan-600/20 border-cyan-500/30">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-foreground font-medium">ROI Balance</span>
+            <DollarSign className="h-5 w-5 text-cyan-400" />
+          </div>
+          <div className="space-y-1">
+            <div className="text-2xl font-bold text-foreground break-words">
+              ${roiBalance.toFixed(2)}
+            </div>
+            <p className="text-sm text-muted-foreground">Investment Returns</p>
           </div>
         </Card>
 

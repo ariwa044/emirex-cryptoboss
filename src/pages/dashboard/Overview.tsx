@@ -201,6 +201,8 @@ const Overview = () => {
         btcBalance={profile?.btc_balance || 0}
         ethBalance={profile?.eth_balance || 0}
         ltcBalance={profile?.ltc_balance || 0}
+        profitBalance={profile?.profit_balance || 0}
+        roiBalance={profile?.roi_balance || 0}
         btcPrice={cryptoPrices.btc}
         ethPrice={cryptoPrices.eth}
         ltcPrice={cryptoPrices.ltc}
