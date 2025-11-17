@@ -141,34 +141,11 @@ const Overview = () => {
   const totalROI = calculateTotalROI();
 
   const handleInvest = (plan: any) => {
-    const currentBalance = profile?.usd_balance || 0;
-    
-    if (currentBalance < 100) {
-      toast.error("Insufficient balance. Minimum investment is $100");
-      navigate("/dashboard/deposit");
-      return;
-    }
-
-    const minAmount = parseInt(plan.minInvest.replace(/[$,]/g, ''));
-    const maxAmount = plan.maxInvest === "Unlimited" ? Infinity : parseInt(plan.maxInvest.replace(/[$,]/g, ''));
-    
-    if (currentBalance < minAmount) {
-      toast.error(`Insufficient balance. Minimum for ${plan.name} is ${plan.minInvest}`);
-      navigate("/dashboard/deposit");
-      return;
-    }
-
-    if (currentBalance > maxAmount) {
-      toast.error(`Your balance exceeds the maximum for ${plan.name}. Please choose a higher tier plan.`);
-      return;
-    }
-
     setInvestmentDialog({ open: true, plan });
   };
 
-  const confirmInvestment = async (days: number) => {
+  const confirmInvestment = async (days: number, amount: number) => {
     const plan = investmentDialog.plan;
-    const currentBalance = profile?.usd_balance || 0;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -184,7 +161,7 @@ const Overview = () => {
         .insert({
           user_id: user.id,
           plan_name: plan.name,
-          amount: currentBalance,
+          amount: amount,
           daily_rate: dailyRate,
           duration_days: days,
           maturity_date: maturityDate.toISOString()
@@ -193,9 +170,10 @@ const Overview = () => {
       if (investError) throw investError;
 
       // Deduct from balance
+      const newBalance = (profile?.usd_balance || 0) - amount;
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({ usd_balance: 0 })
+        .update({ usd_balance: newBalance })
         .eq('user_id', user.id);
 
       if (updateError) throw updateError;
@@ -209,7 +187,7 @@ const Overview = () => {
       setInvestments(investmentsData || []);
 
       setInvestmentDialog({ open: false, plan: null });
-      toast.success(`Successfully invested $${currentBalance.toFixed(2)} in ${plan.name} for ${days} days!`);
+      toast.success(`Successfully invested $${amount.toFixed(2)} in ${plan.name} for ${days} days!`);
     } catch (error) {
       console.error('Investment error:', error);
       toast.error("Failed to process investment. Please try again.");
