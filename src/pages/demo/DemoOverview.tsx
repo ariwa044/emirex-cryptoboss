@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { TrendingUp, Wallet, DollarSign, Check, X, Activity } from "lucide-react";
 
 const DemoOverview = () => {
-  const [demoBalance, setDemoBalance] = useState(100000);
+  const [demoBalance, setDemoBalance] = useState(10000);
   const [btcPrice, setBtcPrice] = useState<number>(0);
   const [priceChange, setPriceChange] = useState<number>(0);
 
@@ -45,7 +45,7 @@ const DemoOverview = () => {
             Welcome to Demo Trading
           </h2>
           <p className="text-foreground/80 leading-relaxed">
-            This is your risk-free training ground! Practice your trading strategies with <strong>$100,000 in virtual funds</strong>. 
+            This is your risk-free training ground! Practice your trading strategies with <strong>$10,000 in virtual funds</strong>. 
             Master the platform, test your theories, and build confidence before trading with real money.
           </p>
           <div className="grid gap-3 md:grid-cols-2 mt-4">
