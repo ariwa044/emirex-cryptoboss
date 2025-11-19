@@ -23,7 +23,7 @@ interface DemoTrade {
 
 const DemoTrade = () => {
   const { toast } = useToast();
-  const [demoBalance, setDemoBalance] = useState(100000);
+  const [demoBalance, setDemoBalance] = useState(10000);
   const [trades, setTrades] = useState<DemoTrade[]>([]);
   const [cryptocurrency, setCryptocurrency] = useState("bitcoin");
   const [positionType, setPositionType] = useState("long");
