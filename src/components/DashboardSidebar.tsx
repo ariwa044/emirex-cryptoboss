@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { SheetClose } from "@/components/ui/sheet";
 
 const navigationItems = [
   { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
@@ -22,7 +23,7 @@ const navigationItems = [
 ];
 
 export function DashboardSidebar() {
-  const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
+  const { open, isMobile } = useSidebar();
 
   return (
     <Sidebar 
@@ -43,16 +44,29 @@ export function DashboardSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary-foreground/10 transition-colors text-primary-foreground font-medium"
-                      activeClassName="bg-primary-foreground/20 text-primary-foreground font-semibold"
-                      onClick={() => isMobile && setOpenMobile(false)}
-                    >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {open && <span className="text-base">{item.title}</span>}
-                    </NavLink>
+                    {isMobile ? (
+                      <SheetClose asChild>
+                        <NavLink
+                          to={item.url}
+                          end={item.url === "/dashboard"}
+                          className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary-foreground/10 transition-colors text-primary-foreground font-medium"
+                          activeClassName="bg-primary-foreground/20 text-primary-foreground font-semibold"
+                        >
+                          <item.icon className="h-5 w-5 flex-shrink-0" />
+                          {open && <span className="text-base">{item.title}</span>}
+                        </NavLink>
+                      </SheetClose>
+                    ) : (
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/dashboard"}
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary-foreground/10 transition-colors text-primary-foreground font-medium"
+                        activeClassName="bg-primary-foreground/20 text-primary-foreground font-semibold"
+                      >
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        {open && <span className="text-base">{item.title}</span>}
+                      </NavLink>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
