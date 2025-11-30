@@ -87,6 +87,36 @@ const Deposit = () => {
       }
     };
     fetchData();
+
+    // Set up realtime subscription for wallet address changes
+    const channel = supabase
+      .channel('deposit-settings-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'website_settings',
+          filter: 'setting_key=in.(deposit_btc_address,deposit_eth_address,deposit_ltc_address)'
+        },
+        (payload) => {
+          console.log('Deposit address updated:', payload);
+          // Update the specific address that changed
+          setWalletAddresses(prev => {
+            const key = payload.new.setting_key;
+            const crypto = key.replace('deposit_', '').replace('_address', '');
+            return {
+              ...prev,
+              [crypto]: payload.new.setting_value !== "Not configured" ? payload.new.setting_value : "Not configured yet"
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleCopy = (address: string, crypto: string) => {
