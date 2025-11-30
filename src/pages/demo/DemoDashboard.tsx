@@ -20,7 +20,7 @@ const DemoDashboard = () => {
 };
 
 function DemoDashboardContent({ handleExitDemo }: any) {
-  const { open, setOpen, isMobile } = useSidebar();
+  const { openMobile, setOpenMobile, isMobile } = useSidebar();
 
   return (
     <>
@@ -28,10 +28,10 @@ function DemoDashboardContent({ handleExitDemo }: any) {
         <DemoSidebar />
         
         {/* Mobile backdrop overlay */}
-        {isMobile && open && (
+        {isMobile && openMobile && (
           <div 
             className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
-            onClick={() => setOpen(false)}
+            onClick={() => setOpenMobile(false)}
             aria-hidden="true"
           />
         )}
