@@ -22,7 +22,7 @@ const navigationItems = [
 ];
 
 export function DashboardSidebar() {
-  const { open } = useSidebar();
+  const { open, setOpen } = useSidebar();
 
   return (
     <Sidebar 
@@ -48,6 +48,7 @@ export function DashboardSidebar() {
                       end={item.url === "/dashboard"}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-primary-foreground/10 transition-colors text-primary-foreground font-medium"
                       activeClassName="bg-primary-foreground/20 text-primary-foreground font-semibold"
+                      onClick={() => setOpen(false)}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {open && <span className="text-base">{item.title}</span>}
