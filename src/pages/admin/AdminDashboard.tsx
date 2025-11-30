@@ -643,26 +643,34 @@ const AdminDashboard = () => {
                     try {
                       const { data: { user } } = await supabase.auth.getUser();
                       
+                      // Use upsert to insert or update settings
                       await Promise.all([
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_btc_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_btc_address"),
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_eth_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_eth_address"),
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_ltc_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_ltc_address")
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_btc_address",
+                          setting_value: websiteSettings.deposit_btc_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Bitcoin deposit address for users"
+                        }, { onConflict: "setting_key" }),
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_eth_address",
+                          setting_value: websiteSettings.deposit_eth_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Ethereum deposit address for users"
+                        }, { onConflict: "setting_key" }),
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_ltc_address",
+                          setting_value: websiteSettings.deposit_ltc_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Litecoin deposit address for users"
+                        }, { onConflict: "setting_key" })
                       ]);
 
                       await logAdminAction("update_settings", null, {
                         settings_updated: ["deposit_btc_address", "deposit_eth_address", "deposit_ltc_address"]
                       });
 
-                      toast.success("Website settings updated successfully");
+                      toast.success("Deposit addresses updated successfully! Changes will reflect immediately for users.");
+                      fetchData();
                     } catch (error: any) {
                       toast.error(error.message || "Failed to update settings");
                     } finally {
@@ -672,7 +680,7 @@ const AdminDashboard = () => {
                   disabled={savingSettings}
                   className="w-full bg-admin-primary hover:bg-admin-accent"
                 >
-                  {savingSettings ? "Saving..." : "Save Settings"}
+                  {savingSettings ? "Saving..." : "Save Deposit Addresses"}
                 </Button>
               </CardContent>
             </Card>
