@@ -111,7 +111,7 @@ const Dashboard = () => {
 };
 
 function DashboardContent({ user, profile, handleSignOut, getInitials, getUsername }: any) {
-  const { open, setOpen, isMobile } = useSidebar();
+  const { openMobile, setOpenMobile, isMobile } = useSidebar();
 
   return (
     <>
@@ -119,10 +119,10 @@ function DashboardContent({ user, profile, handleSignOut, getInitials, getUserna
         <DashboardSidebar />
         
         {/* Mobile backdrop overlay */}
-        {isMobile && open && (
+        {isMobile && openMobile && (
           <div 
             className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
-            onClick={() => setOpen(false)}
+            onClick={() => setOpenMobile(false)}
             aria-hidden="true"
           />
         )}

@@ -18,7 +18,7 @@ const navigationItems = [
 ];
 
 export function DemoSidebar() {
-  const { open, setOpen } = useSidebar();
+  const { open, openMobile, setOpenMobile, isMobile } = useSidebar();
 
   return (
     <Sidebar className="border-r border-border bg-gradient-to-b from-primary/10 to-background">
@@ -42,7 +42,7 @@ export function DemoSidebar() {
                       end={item.url === "/demo"}
                       className="hover:bg-muted/50 transition-colors"
                       activeClassName="bg-primary/20 text-primary font-medium"
-                      onClick={() => setOpen(false)}
+                      onClick={() => isMobile && setOpenMobile(false)}
                     >
                       <item.icon className="h-4 w-4" />
                       {open && <span>{item.title}</span>}
