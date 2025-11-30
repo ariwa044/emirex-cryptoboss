@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -99,8 +99,33 @@ const Dashboard = () => {
 
   return (
     <SidebarProvider>
+      <DashboardContent 
+        user={user} 
+        profile={profile} 
+        handleSignOut={handleSignOut}
+        getInitials={getInitials}
+        getUsername={getUsername}
+      />
+    </SidebarProvider>
+  );
+};
+
+function DashboardContent({ user, profile, handleSignOut, getInitials, getUsername }: any) {
+  const { open, setOpen, isMobile } = useSidebar();
+
+  return (
+    <>
       <div className="min-h-screen flex w-full">
         <DashboardSidebar />
+        
+        {/* Mobile backdrop overlay */}
+        {isMobile && open && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+          />
+        )}
         
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b border-border/50 bg-card/40 backdrop-blur-xl flex items-center justify-between px-4 md:px-6 shadow-lg">
@@ -132,8 +157,8 @@ const Dashboard = () => {
           </main>
         </div>
       </div>
-    </SidebarProvider>
+    </>
   );
-};
+}
 
 export default Dashboard;
