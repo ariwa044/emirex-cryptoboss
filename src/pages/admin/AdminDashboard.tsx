@@ -7,8 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle, Settings } from "lucide-react";
+import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle, Settings, LineChart } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import TradesManagement from "@/components/admin/TradesManagement";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -294,6 +295,15 @@ const AdminDashboard = () => {
             >
               <History className="h-5 w-5" />
               Admin History
+            </button>
+            <button
+              onClick={() => setActiveTab("trades")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "trades" ? "bg-white/20" : "hover:bg-white/10"
+              }`}
+            >
+              <LineChart className="h-5 w-5" />
+              Trades
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -589,6 +599,13 @@ const AdminDashboard = () => {
                 </Table>
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {activeTab === "trades" && (
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-6">Trades Management</h2>
+            <TradesManagement users={users} onActionComplete={fetchData} />
           </div>
         )}
 
