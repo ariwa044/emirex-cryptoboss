@@ -169,6 +169,12 @@ const AdminDashboard = () => {
   };
 
   const handleApproveTransaction = async (transaction: any) => {
+    // Optimistic update - immediately update UI
+    setTransactions(prev => prev.map(t => 
+      t.id === transaction.id ? { ...t, status: "completed" } : t
+    ));
+    toast.success(`${transaction.currency} transaction approved successfully`);
+
     try {
       // Update transaction status
       const { error: txError } = await supabase
@@ -203,6 +209,10 @@ const AdminDashboard = () => {
           : currentBalance - transactionAmount;
 
         if (newBalance < 0) {
+          // Revert optimistic update
+          setTransactions(prev => prev.map(t => 
+            t.id === transaction.id ? { ...t, status: "pending" } : t
+          ));
           toast.error("Insufficient balance for withdrawal");
           return;
         }
@@ -223,14 +233,22 @@ const AdminDashboard = () => {
         currency: transaction.currency
       });
 
-      toast.success(`${transaction.currency} transaction approved successfully`);
-      fetchData();
     } catch (error: any) {
+      // Revert optimistic update on error
+      setTransactions(prev => prev.map(t => 
+        t.id === transaction.id ? { ...t, status: "pending" } : t
+      ));
       toast.error(error.message || "Failed to approve transaction");
     }
   };
 
   const handleRejectTransaction = async (transaction: any) => {
+    // Optimistic update - immediately update UI
+    setTransactions(prev => prev.map(t => 
+      t.id === transaction.id ? { ...t, status: "failed" } : t
+    ));
+    toast.success(`Transaction rejected`);
+
     try {
       const { error } = await supabase
         .from("transactions")
@@ -246,9 +264,11 @@ const AdminDashboard = () => {
         amount: transaction.amount
       });
 
-      toast.success(`Transaction rejected`);
-      fetchData();
     } catch (error: any) {
+      // Revert optimistic update on error
+      setTransactions(prev => prev.map(t => 
+        t.id === transaction.id ? { ...t, status: "pending" } : t
+      ));
       toast.error(error.message || "Failed to reject transaction");
     }
   };
