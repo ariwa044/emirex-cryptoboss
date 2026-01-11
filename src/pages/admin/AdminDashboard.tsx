@@ -7,8 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle, Settings } from "lucide-react";
+import { Users, DollarSign, TrendingUp, LogOut, Edit, LayoutDashboard, History, ArrowDownCircle, ArrowUpCircle, CheckCircle, XCircle, Settings, LineChart } from "lucide-react";
 import { EditUserDialog } from "@/components/admin/EditUserDialog";
+import TradesManagement from "@/components/admin/TradesManagement";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -168,6 +169,12 @@ const AdminDashboard = () => {
   };
 
   const handleApproveTransaction = async (transaction: any) => {
+    // Optimistic update - immediately update UI
+    setTransactions(prev => prev.map(t => 
+      t.id === transaction.id ? { ...t, status: "completed" } : t
+    ));
+    toast.success(`${transaction.currency} transaction approved successfully`);
+
     try {
       // Update transaction status
       const { error: txError } = await supabase
@@ -202,6 +209,10 @@ const AdminDashboard = () => {
           : currentBalance - transactionAmount;
 
         if (newBalance < 0) {
+          // Revert optimistic update
+          setTransactions(prev => prev.map(t => 
+            t.id === transaction.id ? { ...t, status: "pending" } : t
+          ));
           toast.error("Insufficient balance for withdrawal");
           return;
         }
@@ -222,14 +233,22 @@ const AdminDashboard = () => {
         currency: transaction.currency
       });
 
-      toast.success(`${transaction.currency} transaction approved successfully`);
-      fetchData();
     } catch (error: any) {
+      // Revert optimistic update on error
+      setTransactions(prev => prev.map(t => 
+        t.id === transaction.id ? { ...t, status: "pending" } : t
+      ));
       toast.error(error.message || "Failed to approve transaction");
     }
   };
 
   const handleRejectTransaction = async (transaction: any) => {
+    // Optimistic update - immediately update UI
+    setTransactions(prev => prev.map(t => 
+      t.id === transaction.id ? { ...t, status: "failed" } : t
+    ));
+    toast.success(`Transaction rejected`);
+
     try {
       const { error } = await supabase
         .from("transactions")
@@ -245,9 +264,11 @@ const AdminDashboard = () => {
         amount: transaction.amount
       });
 
-      toast.success(`Transaction rejected`);
-      fetchData();
     } catch (error: any) {
+      // Revert optimistic update on error
+      setTransactions(prev => prev.map(t => 
+        t.id === transaction.id ? { ...t, status: "pending" } : t
+      ));
       toast.error(error.message || "Failed to reject transaction");
     }
   };
@@ -294,6 +315,15 @@ const AdminDashboard = () => {
             >
               <History className="h-5 w-5" />
               Admin History
+            </button>
+            <button
+              onClick={() => setActiveTab("trades")}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                activeTab === "trades" ? "bg-white/20" : "hover:bg-white/10"
+              }`}
+            >
+              <LineChart className="h-5 w-5" />
+              Trades
             </button>
             <button
               onClick={() => setActiveTab("settings")}
@@ -592,6 +622,13 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {activeTab === "trades" && (
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-6">Trades Management</h2>
+            <TradesManagement users={users} onActionComplete={fetchData} />
+          </div>
+        )}
+
         {activeTab === "settings" && (
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-6">Website Settings</h2>
@@ -643,26 +680,34 @@ const AdminDashboard = () => {
                     try {
                       const { data: { user } } = await supabase.auth.getUser();
                       
+                      // Use upsert to insert or update settings
                       await Promise.all([
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_btc_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_btc_address"),
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_eth_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_eth_address"),
-                        supabase.from("website_settings").update({ 
-                          setting_value: websiteSettings.deposit_ltc_address,
-                          updated_by: user?.id 
-                        }).eq("setting_key", "deposit_ltc_address")
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_btc_address",
+                          setting_value: websiteSettings.deposit_btc_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Bitcoin deposit address for users"
+                        }, { onConflict: "setting_key" }),
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_eth_address",
+                          setting_value: websiteSettings.deposit_eth_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Ethereum deposit address for users"
+                        }, { onConflict: "setting_key" }),
+                        supabase.from("website_settings").upsert({ 
+                          setting_key: "deposit_ltc_address",
+                          setting_value: websiteSettings.deposit_ltc_address || "Not configured",
+                          updated_by: user?.id,
+                          description: "Litecoin deposit address for users"
+                        }, { onConflict: "setting_key" })
                       ]);
 
                       await logAdminAction("update_settings", null, {
                         settings_updated: ["deposit_btc_address", "deposit_eth_address", "deposit_ltc_address"]
                       });
 
-                      toast.success("Website settings updated successfully");
+                      toast.success("Deposit addresses updated successfully! Changes will reflect immediately for users.");
+                      fetchData();
                     } catch (error: any) {
                       toast.error(error.message || "Failed to update settings");
                     } finally {
@@ -672,7 +717,7 @@ const AdminDashboard = () => {
                   disabled={savingSettings}
                   className="w-full bg-admin-primary hover:bg-admin-accent"
                 >
-                  {savingSettings ? "Saving..." : "Save Settings"}
+                  {savingSettings ? "Saving..." : "Save Deposit Addresses"}
                 </Button>
               </CardContent>
             </Card>

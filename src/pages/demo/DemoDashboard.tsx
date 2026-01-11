@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { DemoSidebar } from "@/components/DemoSidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -14,8 +14,27 @@ const DemoDashboard = () => {
 
   return (
     <SidebarProvider>
+      <DemoDashboardContent handleExitDemo={handleExitDemo} />
+    </SidebarProvider>
+  );
+};
+
+function DemoDashboardContent({ handleExitDemo }: any) {
+  const { openMobile, setOpenMobile, isMobile } = useSidebar();
+
+  return (
+    <>
       <div className="min-h-screen flex w-full">
         <DemoSidebar />
+        
+        {/* Mobile backdrop overlay */}
+        {isMobile && openMobile && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setOpenMobile(false)}
+            aria-hidden="true"
+          />
+        )}
         
         <div className="flex-1 flex flex-col">
           <header className="h-14 md:h-16 border-b border-border/50 bg-card/40 backdrop-blur-xl flex items-center justify-between px-3 md:px-6 shadow-lg">
@@ -44,8 +63,8 @@ const DemoDashboard = () => {
           </main>
         </div>
       </div>
-    </SidebarProvider>
+    </>
   );
-};
+}
 
 export default DemoDashboard;

@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { SheetClose } from "@/components/ui/sheet";
 
 const navigationItems = [
   { title: "Overview", url: "/demo", icon: LayoutDashboard },
@@ -18,7 +19,7 @@ const navigationItems = [
 ];
 
 export function DemoSidebar() {
-  const { open } = useSidebar();
+  const { open, isMobile } = useSidebar();
 
   return (
     <Sidebar className="border-r border-border bg-gradient-to-b from-primary/10 to-background">
@@ -37,15 +38,29 @@ export function DemoSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/demo"}
-                      className="hover:bg-muted/50 transition-colors"
-                      activeClassName="bg-primary/20 text-primary font-medium"
-                    >
-                      <item.icon className="h-4 w-4" />
-                      {open && <span>{item.title}</span>}
-                    </NavLink>
+                    {isMobile ? (
+                      <SheetClose asChild>
+                        <NavLink
+                          to={item.url}
+                          end={item.url === "/demo"}
+                          className="hover:bg-muted/50 transition-colors"
+                          activeClassName="bg-primary/20 text-primary font-medium"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          {open && <span>{item.title}</span>}
+                        </NavLink>
+                      </SheetClose>
+                    ) : (
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/demo"}
+                        className="hover:bg-muted/50 transition-colors"
+                        activeClassName="bg-primary/20 text-primary font-medium"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {open && <span>{item.title}</span>}
+                      </NavLink>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
